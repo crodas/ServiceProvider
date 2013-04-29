@@ -4,7 +4,7 @@ namespace something;
 /**
  *  @Service(barfoo, {
  *      barfoo: {type: 'integer'} 
- *  }, {foo:bar})
+ *  }, {shared: true})
  */
 function foobar() {
 }
