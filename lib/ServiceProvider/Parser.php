@@ -117,7 +117,8 @@ class Parser
 
         $this->files[] = $file;
         $this->stack[] = dirname($file);
-        Parser\Yaml::parse($this, $file);
+        $parser = new Parser\Yaml;
+        $parser->parse($this, $file);
 
         return $this;
     }
