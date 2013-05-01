@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "926c3b6a88963e8ab82331d43a0b6e06",
+    "hash": "355360d512db7932bf3e0ca74e0194b5",
     "packages": [
         {
             "name": "crodas/artifex",
