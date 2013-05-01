@@ -5,6 +5,7 @@ require __DIR__ . "/../vendor/autoload.php";
 
 function resetServices()
 {
+    @mkdir(__DIR__ . '/generated/');
     foreach(glob(__DIR__ . '/generated/*') as $file) {
         unlink($file);
     }
@@ -13,13 +14,13 @@ function resetServices()
     @rmdir($dir);
 }
 
-function getService()
+function getService($type = 'foo.yml')
 {
     return new ServiceProvider\Provider(
-        __DIR__ . "/features/config/foo.yml", 
+        __DIR__ . "/features/config/" . $type, 
         __DIR__ . "/features/plugins/", 
-        __DIR__ . "/generated/service.php"
+        __DIR__ . "/generated/{$type}.php"
     );
 }
 
-
+resetServices();

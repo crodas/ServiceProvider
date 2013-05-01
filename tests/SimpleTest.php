@@ -2,16 +2,29 @@
 
 class SimpleTest extends \phpunit_framework_testcase
 {
-    public function testCompile()
+    public static function provider()
     {
-        resetServices();
-        $services = getService();
+        return array(
+            array('foo.yml'),
+            array('foo.ini'),
+        );
+    }
+
+    /**
+     *  @dataProvider provider
+     */
+    public function testCompile($zfile)
+    {
+        $services = getService($zfile);
         $this->assertTrue($services instanceof ServiceProvider\Provider);
     }
 
+    /**
+     *  @depends testCompile
+     */
     public function testRecompilation()
     {
-        $file = __DIR__ . '/generated/service.php';
+        $file = __DIR__ . '/generated/foo.yml.php';
         $time = filemtime($file);
 
 
@@ -36,11 +49,12 @@ class SimpleTest extends \phpunit_framework_testcase
     }
 
     /**
+     *  @dataProvider provider
      *  @expectedException ServiceProvider\NotFoundException
      */
-    public function testNoService()
+    public function testNoService($zfile)
     {
-        getService()->get('foobar_ssss');
+        getService($zfile)->get('foobar_ssss');
     }
 
     public function testNotSharedServices()
