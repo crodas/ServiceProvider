@@ -3,8 +3,11 @@ namespace something;
 
 /**
  *  @Service(barfoo, {
- *      barfoo: {type: 'integer'} 
- *  }, {shared: true})
+ *      barfoo: {type: &foobar},
+ *      xx: {type: numeric, default: 5.1}
+ *  })
  */
-function foobar() {
+function foobar($config, $context) 
+{
+    return $config;
 }

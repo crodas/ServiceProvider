@@ -129,6 +129,7 @@ class Provider
                 foreach ($parse as $pos => $_name) {
                     $$_name = !empty($args[$_name]) ? $args[$_name] : (!empty($args[$pos]) ? $args[$pos] : NULL);
                 }
+
                 if (empty($name)) {
                     throw new \RuntimeException("Missing service name in annotation");
                 }
@@ -145,6 +146,35 @@ class Provider
                         } else {
                             throw new \Exception("Missing configuration {$property} for service {$name}");
                         }
+                    }
+
+                    $value = $params[$property];
+
+                    if (!empty($def['type'])) {
+                        switch ($def['type']) {
+                        case 'integer':
+                        case 'string':
+                        case 'numeric':
+                        case 'float':
+                        case 'array':
+                            $check = "is_{$def['type']}";
+                            if (!$check($value)) {
+                                throw new \Exception("{$property} should be {$def['type']}");
+                            }
+                            break;
+                        case 'service':
+                            if (!($value instanceof Compiler\ServiceCall)) {
+                                throw new \Exception("{$property} should be any service");
+                            }
+                            break;
+                        default:
+                            if ($def['type'][0] == '&') {
+                                $service = substr($def['type'], 1);
+                                if (!($value instanceof Compiler\ServiceCall) || strcasecmp($value->name, $service) !== 0) {
+                                    throw new \Exception("{$property} should be $service service");
+                                }
+                            }
+                        } 
                     }
                 }
 

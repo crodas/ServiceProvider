@@ -43,9 +43,29 @@ class SimpleTest extends \phpunit_framework_testcase
         getService()->get('foobar_ssss');
     }
 
+    public function testNotSharedServices()
+    {
+        $this->assertEquals(
+            getService()->get('barfoo', $this),
+            getService()->get('barfoo', $this)
+        );
+    }
+
+    public function testSharedServices()
+    {
+        $this->assertEquals(
+            getService()->get('foobar', $this),
+            getService()->get('foobar', $this)
+        );
+    }
+
     public function testServices()
     {
-        $service = getService()->get('foobar', $this);
-        $this->assertTrue($service instanceof \Stdclass);
+        $service1 = getService()->get('foobar', $this);
+        $this->assertTrue($service1 instanceof \Stdclass);
+
+        $service = getService()->get('barfoo', $this);
+        $this->assertTrue(is_array($service));
+        $this->assertEquals($service['barfoo'], $service1);
     }
 }
