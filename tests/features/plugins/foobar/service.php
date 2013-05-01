@@ -4,7 +4,8 @@ class Something
 {
     /**
      *  @Service(foobar, {
-     *      foo: {default: 'foobar'} 
+     *      foo: {default: 'foobar'},
+     *      empty: {default: ''}
      *  }, {shared:true})
      */
     function foobar($config, $context)
