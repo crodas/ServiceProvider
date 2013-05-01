@@ -15,16 +15,32 @@ spl_autoload_register(function ($class) {
     // classes {{{
     static $classes = array (
   'serviceprovider\\notfoundexception' => '/NotFoundException.php',
-  'serviceprovider\\parser\\yaml' => '/Parser/Yaml.php',
+  'serviceprovider\\parser\\yaml' => '/Parser/YAML.php',
+  'serviceprovider\\parser\\yml' => '/Parser/YML.php',
   'serviceprovider\\compiler\\servicecall' => '/Compiler/ServiceCall.php',
   'serviceprovider\\parser' => '/Parser.php',
   'serviceprovider\\provider' => '/Provider.php',
 );
     // }}}
 
+    // deps {{{
+    static $deps    = array (
+  'serviceprovider\\parser\\yml' => 
+  array (
+    0 => 'serviceprovider\\parser\\yaml',
+  ),
+);
+    // }}}
 
     $class = strtolower($class);
     if (isset($classes[$class])) {
+        if (!empty($deps[$class])) {
+            foreach ($deps[$class] as $zclass) {
+                if (!class_exists($zclass, false)) {
+                    require __DIR__  . $classes[$zclass];
+                }
+            }
+        }
 
         if (!class_exists($class, false)) {
 
