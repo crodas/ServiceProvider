@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "355360d512db7932bf3e0ca74e0194b5",
+    "hash": "7bb97d5733b45951ab1ee047fe4167d3",
     "packages": [
         {
             "name": "crodas/artifex",
@@ -106,6 +106,53 @@
             ],
             "description": "Watch files and directories for changes",
             "time": "2013-04-27 16:21:08"
+        },
+        {
+            "name": "seld/jsonlint",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Seldaek/jsonlint.git",
+                "reference": "7ae109906d1b382a6bc3cf12b01c9c885a703f22"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/7ae109906d1b382a6bc3cf12b01c9c885a703f22",
+                "reference": "7ae109906d1b382a6bc3cf12b01c9c885a703f22",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "bin": [
+                "bin/jsonlint"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Seld\\JsonLint": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "JSON Linter",
+            "keywords": [
+                "json",
+                "linter",
+                "parser",
+                "validator"
+            ],
+            "time": "2013-02-14 15:45:55"
         },
         {
             "name": "symfony/yaml",

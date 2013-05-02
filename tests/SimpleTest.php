@@ -7,6 +7,7 @@ class SimpleTest extends \phpunit_framework_testcase
         return array(
             array('foo.yml'),
             array('foo.ini'),
+            array('foo.json'),
         );
     }
 

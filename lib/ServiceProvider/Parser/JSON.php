@@ -34,113 +34,29 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
+namespace ServiceProvider\Parser;
 
-namespace ServiceProvider;
+use Seld\JsonLint\JsonParser;
 
-class Parser
+
+class JSON
 {
-    protected $stack  = array();
-    protected $config = array();
-    protected $files  = array();
-
-    public function getFiles()
+    public function parse($parser, $file)
     {
-        return $this->files;
-    }
+        $json  = file_get_contents($file);
+        $check = new JsonParser();
+        $check->lint($json);
 
-    protected function getValue($var)
-    {
-        $parts = explode(".", $var);
-        $value = &$this->config;
-        foreach ($parts as $part) {
-            if (!is_array($value)) {
-                throw new \RuntimeException(implode(".", $parts) . " is not a vector");
+        $data = json_decode($json, true);
+        if (!empty($data['include'])) {
+            foreach ($data['include'] as $f) {
+                $parser->parse($f);
             }
-            if (!array_key_exists($part, $value)) {
-                throw new \RuntimeException("Cannot find $part inside " . print_r($value, true));
-            }
-            $value = &$value[$part];
+            unset($data['include']);
         }
-
-        if (count($parts) == 1) {
-            return new Compiler\ServiceCall($parts[0]);
+        foreach ($data as $key => $value) {
+            $parser->define($key, $value);
         }
-
-        return $value;
-    }
-
-    protected function processVariables(Array &$config)
-    {
-        foreach ($config as $key => $value) {
-            if (is_string($value) && $value[0] == substr($value, -1) && $value[0] == '%') {
-                $config[$key] = $this->getValue(substr($value, 1, -1));
-            } else if (is_array($value)) {
-                $this->processVariables($config[$key]);
-            }
-        }
-    }
-
-    protected function merge(&$arr1, $arr2)
-    {
-        foreach ($arr2 as $key => $value) {
-            if (empty($arr1[$key]) || !is_array($arr1[$key])) {
-                $arr1[$key] = $value;
-            } else {
-                $this->merge($arr1[$key], $value);
-            }
-        }
-    }
-
-    public function define($name, $value)
-    {
-        if (!array_key_exists($name, $this->config)) {
-            $this->config[$name] = $value;
-        } else {
-            $this->merge($this->config[$name], $value);
-        }
-        return $this;
-    }
-
-    public function parse($file)
-    {
-        if (count($this->stack) > 0 && !is_file($file)) {
-            foreach ($this->stack as $dir) {
-                if (is_file($dir . '/' . $file)) {
-                    $file = $dir . '/' . $file;
-                    break;
-                }
-            }
-            if (!is_file($file)) {
-                throw new \RuntimeException("cannot load file {$file}");
-            }
-        }
-
-        $this->files[] = $file;
-        $this->stack[] = dirname($file);
-        $type  = explode(".", $file);
-        $class = __NAMESPACE__ . '\\Parser\\' . strtoupper(end($type));
-        if (!class_exists($class)) {
-            throw new \Exception("Cannot find class $class");
-        }
-        $parser = new $class;
-        $parser->parse($this, $file);
-
-        return $this;
-    }
-
-    public function process()
-    { 
-        if (empty($this->config)) {
-            throw new \RuntimeException("There is not nothing to process");
-        }
-
-        $this->processVariables($this->config);
-
-        return $this;
-    }
-
-    public function getConfig()
-    {
-        return $this->config;
     }
 }
+

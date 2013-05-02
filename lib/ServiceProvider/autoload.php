@@ -18,6 +18,7 @@ spl_autoload_register(function ($class) {
   'serviceprovider\\parser\\yaml' => '/Parser/YAML.php',
   'serviceprovider\\parser\\yml' => '/Parser/YML.php',
   'serviceprovider\\parser\\ini' => '/Parser/INI.php',
+  'serviceprovider\\parser\\json' => '/Parser/JSON.php',
   'serviceprovider\\compiler\\servicecall' => '/Compiler/ServiceCall.php',
   'serviceprovider\\parser' => '/Parser.php',
   'serviceprovider\\provider' => '/Provider.php',
