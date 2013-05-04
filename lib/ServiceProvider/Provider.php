@@ -37,6 +37,7 @@
 namespace ServiceProvider;
 
 use Notoj\Dir as AnnotationDir;
+use Notoj\File as AnnotationFile;
 use Notoj\Annotations;
 use Artifex;
 use WatchFiles\Watch;
@@ -44,30 +45,29 @@ use WatchFiles\Watch;
 class Provider
 {
     protected $file;
-    protected $dir;
     protected $tmp;
     protected $tmpCache;
     protected $files;
     protected $ns;
+    protected $pattern;
     protected $func;
 
-    public function __construct($file, $dir, $tmp)
+    public function __construct($file, $pattern, $tmp)
     {
         if (!is_file($file)) {
             throw new \RuntimeException("File {$file} doesn't exists");
         }
-        if (!is_dir($dir)) {
-            $dirs = glob($dir);
-            if (empty($dirs)) {
-                throw new \RuntimeException("Dir {$dir} doesn't exists");
-            }
-        } else {
-            $dirs = array($dir);
+        
+        $files = glob($pattern);
+        if (empty($files)) {
+            throw new \RuntimeException("Cannot find {$pattern}");
         }
 
-        $this->file = $file;
-        $this->dir  = $dirs;
-        $this->tmp  = $tmp;
+        $this->pattern = $pattern;
+
+        $this->file   = $file;
+        $this->files  = $files;
+        $this->tmp    = $tmp;
         $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
         $this->ns   = sha1(realpath($file));
         $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . $this->ns . '\\get_service';
@@ -86,18 +86,60 @@ class Provider
         $this->generate();
     }
 
+    /**
+     *  Based on the glob pattern return a list 
+     *  of paths to watch in order to detect changes.
+     *  
+     *  For instance if we have `foo/some*dir/xxx` we must
+     *  watch `foo/` for changes.
+     *  
+     */
+    protected function getCommonParentDir($dirs)
+    {
+        $comodin = array();
+        $parts   = array_filter(explode(DIRECTORY_SEPARATOR, $this->pattern));
+        foreach($parts as $i => $part) {
+            if (strpos($part, '*') !== false) {
+                $comodin[] = max($i-1, 0);
+            }
+        }
+
+        $tmpDirs = array(); 
+        foreach ($dirs as $dir) {
+            $parts = array_filter(explode(DIRECTORY_SEPARATOR, $dir));
+            foreach ($comodin as $i) {
+                $tmpDirs[] = DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, array_slice($parts, 0, $i));
+            }
+        }
+
+        return array_merge($dirs, array_unique($tmpDirs));
+    }
+
     protected function createCacheFiles($files)
     {
-        foreach ($this->dir as $d) {
-            $dir[] = $d;
+        $dirs  = array();
+        $files = array();
+
+        /**
+         *  Watch for changes every file and 
+         *  directory. If something change
+         *  we must be able to detect it 
+         *  and re-compile service provider
+         */
+        foreach ($this->files as $d) {
+            if (is_file($d)) {
+                $files[] = $d;
+                $dirs[]  = dirname($d);
+            } else {
+                $dirs[] = $d;
+            }
         }
-        foreach ($files as $file) {
-            $dir[] = dirname($file);
-        }
+
+        $dirs = $this->getCommonParentDir($dirs);
 
         $this->tmpCache
             ->watchFiles($files)
-            ->watchDirs($dir)
+            ->watchDirs($dirs)
             ->watch();
     }
 
@@ -109,8 +151,14 @@ class Provider
         $files  = $parser->getFiles(); 
 
         $annotations = new Annotations;
-        foreach ($this->dir as $dir) {
-            $ann  = new AnnotationDir($dir);
+        foreach ($this->files as $input) {
+            if (is_dir($input)) {
+                $ann  = new AnnotationDir($input);
+            } else if (is_file($input)) {
+                $ann  = new AnnotationFile($input);
+            } else {
+                throw new \Exception("Cannot read {$input}");
+            }
             $ann->getAnnotations($annotations);
         }
 

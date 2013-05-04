@@ -18,7 +18,7 @@ function getService($type = 'foo.yml')
 {
     return new ServiceProvider\Provider(
         __DIR__ . "/features/config/" . $type, 
-        __DIR__ . "/features/plugins/", 
+        __DIR__ . "/features/plugins/*/service.php", 
         __DIR__ . "/generated/{$type}.php"
     );
 }
