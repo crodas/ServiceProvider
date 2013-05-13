@@ -118,7 +118,6 @@ class Provider
     protected function createCacheFiles($files)
     {
         $dirs  = array();
-        $files = array();
 
         /**
          *  Watch for changes every file and 
