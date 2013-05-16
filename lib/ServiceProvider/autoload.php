@@ -22,6 +22,7 @@ spl_autoload_register(function ($class) {
   'serviceprovider\\compiler\\servicecall' => '/Compiler/ServiceCall.php',
   'serviceprovider\\parser' => '/Parser.php',
   'serviceprovider\\provider' => '/Provider.php',
+  'serviceprovider\\composer' => '/Composer.php',
 );
     // }}}
 
@@ -30,6 +31,10 @@ spl_autoload_register(function ($class) {
   'serviceprovider\\parser\\yml' => 
   array (
     0 => 'serviceprovider\\parser\\yaml',
+  ),
+  'serviceprovider\\composer' => 
+  array (
+    0 => 'serviceprovider\\provider',
   ),
 );
     // }}}
