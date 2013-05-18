@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "7bb97d5733b45951ab1ee047fe4167d3",
+    "hash": "7c360dd7358ad551899b0109a5d11797",
     "packages": [
         {
             "name": "crodas/artifex",
@@ -44,12 +44,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/crodas/Notoj.git",
-                "reference": "c6a9d86bc583d54de2baf20ea80f839dd242340c"
+                "reference": "8c056dadbfeff76fc9458387957f070310c7616f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/crodas/Notoj/zipball/c6a9d86bc583d54de2baf20ea80f839dd242340c",
-                "reference": "c6a9d86bc583d54de2baf20ea80f839dd242340c",
+                "url": "https://api.github.com/repos/crodas/Notoj/zipball/8c056dadbfeff76fc9458387957f070310c7616f",
+                "reference": "8c056dadbfeff76fc9458387957f070310c7616f",
                 "shasum": ""
             },
             "require": {
@@ -69,7 +69,7 @@
                 }
             ],
             "description": "Annotation parser. Uses reflection and provides cache out of the box.",
-            "time": "2013-04-24 01:06:15"
+            "time": "2013-05-14 00:45:24"
         },
         {
             "name": "crodas/watch-files",
@@ -77,12 +77,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/crodas/WatchFiles.git",
-                "reference": "5c76f5bfe689c20554ad24ed64749c471b822c72"
+                "reference": "5590f25f92ac0495087ebaea3a538fdecb63ea5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/crodas/WatchFiles/zipball/5c76f5bfe689c20554ad24ed64749c471b822c72",
-                "reference": "5c76f5bfe689c20554ad24ed64749c471b822c72",
+                "url": "https://api.github.com/repos/crodas/WatchFiles/zipball/5590f25f92ac0495087ebaea3a538fdecb63ea5e",
+                "reference": "5590f25f92ac0495087ebaea3a538fdecb63ea5e",
                 "shasum": ""
             },
             "require": {
@@ -105,7 +105,7 @@
                 }
             ],
             "description": "Watch files and directories for changes",
-            "time": "2013-04-27 16:21:08"
+            "time": "2013-05-18 10:59:39"
         },
         {
             "name": "seld/jsonlint",
@@ -161,12 +161,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "v2.3.0-BETA1"
+                "reference": "82100c7732c95452702d11433aad50988700d36c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/v2.3.0-BETA1",
-                "reference": "v2.3.0-BETA1",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/82100c7732c95452702d11433aad50988700d36c",
+                "reference": "82100c7732c95452702d11433aad50988700d36c",
                 "shasum": ""
             },
             "require": {
@@ -175,7 +175,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.4-dev"
                 }
             },
             "autoload": {
@@ -199,7 +199,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-04-21 12:26:17"
+            "time": "2013-05-16 07:54:39"
         }
     ],
     "packages-dev": [

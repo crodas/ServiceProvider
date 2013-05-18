@@ -58,19 +58,15 @@ class Provider
             throw new \RuntimeException("File {$file} doesn't exists");
         }
         
-        $files = glob($pattern);
-        if (empty($files)) {
-            throw new \RuntimeException("Cannot find {$pattern}");
-        }
-
         $this->pattern = $pattern;
 
         $this->file   = $file;
-        $this->files  = $files;
         $this->tmp    = $tmp;
         $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
         $this->ns   = sha1(realpath($file));
         $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . $this->ns . '\\get_service';
+
+        $this->tmpCache->watchGlob($pattern);
 
         if (!$this->tmpCache->hasChanged()) {
             require_once $tmp;
@@ -78,68 +74,20 @@ class Provider
                 return;
             }
         }
+        $this->tmpCache->watch();
+
+        $files = $this->tmpCache->getFiles();
+        if (empty($files)) {
+            throw new \RuntimeException("Cannot find {$pattern}");
+        }
+
+        $this->files  = $files;
 
         if (!is_file($tmp)) {
             file_put_contents($tmp, '', LOCK_EX);
         }
 
         $this->generate();
-    }
-
-    /**
-     *  Based on the glob pattern return a list 
-     *  of paths to watch in order to detect changes.
-     *  
-     *  For instance if we have `foo/some*dir/xxx` we must
-     *  watch `foo/` for changes.
-     *  
-     */
-    protected function getCommonParentDir($dirs)
-    {
-        $comodin = array();
-        $parts   = array_filter(explode(DIRECTORY_SEPARATOR, $this->pattern));
-        foreach($parts as $i => $part) {
-            if (strpos($part, '*') !== false) {
-                $comodin[] = max($i-1, 0);
-            }
-        }
-
-        $tmpDirs = array(); 
-        foreach ($dirs as $dir) {
-            $parts = array_filter(explode(DIRECTORY_SEPARATOR, $dir));
-            foreach ($comodin as $i) {
-                $tmpDirs[] = DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, array_slice($parts, 0, $i));
-            }
-        }
-
-        return array_merge($dirs, array_unique($tmpDirs));
-    }
-
-    protected function createCacheFiles($files)
-    {
-        $dirs  = array();
-
-        /**
-         *  Watch for changes every file and 
-         *  directory. If something change
-         *  we must be able to detect it 
-         *  and re-compile service provider
-         */
-        foreach ($this->files as $d) {
-            if (is_file($d)) {
-                $files[] = $d;
-                $dirs[]  = dirname($d);
-            } else {
-                $dirs[] = $d;
-            }
-        }
-
-        $dirs = $this->getCommonParentDir($dirs);
-
-        $this->tmpCache
-            ->watchFiles($files)
-            ->watchDirs($dirs)
-            ->watch();
     }
 
     protected function generate()
@@ -240,9 +188,6 @@ class Provider
                 $switch[$type->name]['names'][] = $name;
             }
         }
-
-
-        $this->createCacheFiles($files);
 
         $ns   = $this->ns;
         $self = $this;
