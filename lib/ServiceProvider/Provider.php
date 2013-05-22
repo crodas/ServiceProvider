@@ -52,6 +52,8 @@ class Provider
     protected $pattern;
     protected $func;
 
+    protected static $NS = array();
+
     public function __construct($file, $pattern, $tmp)
     {
         if (!is_file($file)) {
@@ -65,6 +67,10 @@ class Provider
         $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
         $this->ns   = sha1(realpath($file));
         $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . $this->ns . '\\get_service';
+
+        if (isset(self::$NS[$this->ns])) {
+            $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . self::$NS[$this->ns] . '\\get_service';
+        }
 
         $this->tmpCache->watchGlob($pattern);
 
@@ -215,6 +221,7 @@ class Provider
             $code = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
                 ->setContext(compact('switch', 'ns', 'self'))
                 ->run();
+            self::$NS[ $this->ns ] = $ns;
             $this->fnc = 'ServiceProvider\Generated\Stage_' . $ns . '\get_service';
             eval(substr($code, 5));
         } else {

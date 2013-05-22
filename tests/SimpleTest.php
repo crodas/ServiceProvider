@@ -31,6 +31,7 @@ class SimpleTest extends \phpunit_framework_testcase
 
         // clear stat cache
         clearstatcache();
+        sleep(1);
         $foo = getService();
 
         $this->assertEquals($time, filemtime($file));
