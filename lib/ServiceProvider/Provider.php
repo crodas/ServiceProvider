@@ -189,6 +189,15 @@ class Provider
             }
         }
 
+        $dirs = array();
+        foreach ($files as $file) {
+            $dirs[] = dirname($file);
+        }
+
+        $this->tmpCache->watchFiles($files)
+            ->watchDirs($dirs)
+            ->watch();
+
         $ns   = $this->ns;
         $self = $this;
         $code = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
