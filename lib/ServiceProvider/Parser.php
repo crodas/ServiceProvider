@@ -54,7 +54,10 @@ class Parser
         $value = &$this->config;
         foreach ($parts as $part) {
             if (!is_array($value)) {
-                throw new \RuntimeException(implode(".", $parts) . " is not a vector");
+                if (!empty($value)) {
+                    throw new \RuntimeException(implode(".", $parts) . " is not a vector");
+                }
+                $value = array();
             }
             if (!array_key_exists($part, $value)) {
                 throw new \RuntimeException("Cannot find $part inside " . print_r($value, true));

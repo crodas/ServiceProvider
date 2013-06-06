@@ -4,6 +4,7 @@ class Something
 {
     /**
      *  @Service(foobar, {
+     *      arg1: {default: 'demo'},
      *      foo: {default: 'foobar'},
      *      empty: {default: ''}
      *  }, {shared:true})

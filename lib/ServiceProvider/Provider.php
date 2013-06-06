@@ -136,7 +136,7 @@ class Provider
                 }
 
                 if (empty($config[$name])) {
-                    continue;
+                    $config[$name] = array();
                 }
 
                 $params = $config[$name];
@@ -179,8 +179,12 @@ class Provider
                     }
                 }
 
+
                 if (!is_array($definition)) {
-                    throw new \RuntimeException("Invalid service configuration in annotation");
+                    if (!empty($definition)) {
+                        throw new \RuntimeException("Invalid service configuration in annotation");
+                    }
+                    $definition = array();
                 }
 
                 $file   = Watch::getRelativePath($object['file'], $this->tmp);
