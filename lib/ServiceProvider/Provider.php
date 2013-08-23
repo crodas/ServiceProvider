@@ -120,6 +120,13 @@ class Provider
         $switch = array();
 
         $services = $annotations->get('Service');
+        $default  = array();
+        foreach ($config as $key => $value) {
+            if (is_scalar($value)) {
+                $default[$key] = $value;
+            }
+        }
+
         foreach($services as $object) {
             $files[] = $object['file'];
             foreach ($object as $annotation) {
@@ -139,7 +146,8 @@ class Provider
                     $config[$name] = array();
                 }
 
-                $params = $config[$name];
+                $params = array_merge($default, $config[$name]);
+
                 foreach ((array)$definition as $property => $def) {
                     if (!array_key_exists($property, $params)) {
                         if (array_key_exists('default', $def)) {

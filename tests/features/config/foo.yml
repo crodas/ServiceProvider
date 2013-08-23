@@ -1,3 +1,5 @@
+arg1: 'xxx'
+
 foobar:
     arg1: 'demo'
 
