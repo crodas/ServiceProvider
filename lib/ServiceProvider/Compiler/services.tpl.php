@@ -1,17 +1,4 @@
 <?php
-#* if ($alias)
-namespace
-{
-    class __alias__
-    {
-        public static function get($service, $context = null)
-        {
-            return ServiceProvider\Generated\Stage__ns__\get_service($service, $context);
-        }
-    }
-}
-#* end
-
 namespace ServiceProvider\Generated\Stage___ns__ 
 {
     function get_service($service, $context = NULL)
@@ -35,3 +22,19 @@ namespace ServiceProvider\Generated\Stage___ns__
         return $return;
     }
 }
+
+#* if ($alias)
+namespace
+{
+    use ServiceProvider\Generated\Stage___ns__ as f;
+
+    class __alias__
+    {
+        public static function get($service, $context = null)
+        {
+            return f\get_service($service, $context);
+        }
+    }
+}
+#* end
+
