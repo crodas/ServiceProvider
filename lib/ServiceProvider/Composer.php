@@ -38,8 +38,8 @@ namespace ServiceProvider;
 
 class Composer extends Provider
 {
-    public function __construct($file)
+    public function __construct($file, $alias = '')
     {
-        parent::__construct($file, __DIR__ . '/../../../../*/*/service.php', $file . '.tmp');
+        parent::__construct($file, __DIR__ . '/../../../../*/*/service.php', $file . '.tmp', $alias);
     }
 }

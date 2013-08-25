@@ -51,10 +51,11 @@ class Provider
     protected $ns;
     protected $pattern;
     protected $func;
+    protected $alias;
 
     protected static $NS = array();
 
-    public function __construct($file, $pattern, $tmp)
+    public function __construct($file, $pattern, $tmp, $alias = '')
     {
         if (!is_file($file)) {
             throw new \RuntimeException("File {$file} doesn't exists");
@@ -64,6 +65,7 @@ class Provider
 
         $this->file   = $file;
         $this->tmp    = $tmp;
+        $this->alias  = $alias;
         $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
         $this->ns   = sha1(realpath($file));
         $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . $this->ns . '\\get_service';
@@ -216,10 +218,11 @@ class Provider
             ->watchDirs($dirs)
             ->watch();
 
-        $ns   = $this->ns;
-        $self = $this;
-        $code = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
-            ->setContext(compact('switch', 'ns', 'self'))
+        $ns    = $this->ns;
+        $self  = $this;
+        $alias = $this->alias;
+        $code  = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
+            ->setContext(compact('switch', 'ns', 'self', 'alias'))
             ->run();
         Artifex::save($this->tmp, $code);
         if (is_callable($this->fnc)) {
