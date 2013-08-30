@@ -6,7 +6,8 @@
         "crodas/notoj": "*",
         "symfony/yaml": "*",
         "crodas/watch-files": "*",
-        "seld/jsonlint": "*"
+        "seld/jsonlint": "*",
+        "crodas/path": "*"
     },
     "license": "BSD",
     "authors": [

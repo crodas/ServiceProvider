@@ -41,6 +41,7 @@ use Notoj\File as AnnotationFile;
 use Notoj\Annotations;
 use Artifex;
 use WatchFiles\Watch;
+use crodas\Path;
 
 class Provider
 {
@@ -197,7 +198,7 @@ class Provider
                     $definition = array();
                 }
 
-                $file   = Watch::getRelativePath($object['file'], $this->tmp);
+                $file   = Path::getRelative($object['file'], $this->tmp);
                 $names  = array($name);
                 $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition');
             }
@@ -230,7 +231,7 @@ class Provider
             // a function, so we create the function inside another
             // namespace.
             foreach ($switch as &$service) {
-                $service['file'] = Watch::getRelativePath($service['object']['file'], __FILE__);
+                $service['file'] = Path::getRelative($service['object']['file'], __FILE__);
             }
             $ns   = uniqid(true);
             $code = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
