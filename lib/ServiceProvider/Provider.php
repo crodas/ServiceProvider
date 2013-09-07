@@ -42,6 +42,7 @@ use Notoj\Annotations;
 use Artifex;
 use WatchFiles\Watch;
 use crodas\Path;
+use crodas\File;
 
 class Provider
 {
@@ -225,7 +226,9 @@ class Provider
         $code  = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
             ->setContext(compact('switch', 'ns', 'self', 'alias'))
             ->run();
-        Artifex::save($this->tmp, $code);
+
+        File::write($this->tmp, $code);
+
         if (is_callable($this->fnc)) {
             // PHP is a bitch, it won't let use re-define
             // a function, so we create the function inside another
