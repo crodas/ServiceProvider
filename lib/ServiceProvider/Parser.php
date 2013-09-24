@@ -83,13 +83,17 @@ class Parser
         }
     }
 
-    protected function merge(&$arr1, $arr2)
+    protected function merge(&$arr1, $arr2, $name)
     {
+        if (!is_array($arr2)) {
+            $arr1[$name] = $arr2;
+            return;
+        }
         foreach ($arr2 as $key => $value) {
             if (empty($arr1[$key]) || !is_array($arr1[$key])) {
                 $arr1[$key] = $value;
             } else {
-                $this->merge($arr1[$key], $value);
+                $this->merge($arr1[$key], $value, $key);
             }
         }
     }
@@ -99,7 +103,7 @@ class Parser
         if (!array_key_exists($name, $this->config)) {
             $this->config[$name] = $value;
         } else {
-            $this->merge($this->config[$name], $value);
+            $this->merge($this->config[$name], $value, $name);
         }
         return $this;
     }
