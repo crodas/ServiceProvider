@@ -78,7 +78,7 @@ class Provider
 
         $this->tmpCache->watchGlob($pattern);
 
-        if (!$this->tmpCache->hasChanged()) {
+        if (!$this->tmpCache->hasChanged() && is_file($tmp)) {
             require_once $tmp;
             if (is_callable($this->fnc)) {
                 return;
@@ -92,10 +92,6 @@ class Provider
         }
 
         $this->files  = $files;
-
-        if (!is_file($tmp)) {
-            file_put_contents($tmp, '', LOCK_EX);
-        }
 
         $this->generate();
     }
