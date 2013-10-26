@@ -1,4 +1,5 @@
 {
+    "devel": true,
     "foobar": {
         "arg1": "demo"
     },

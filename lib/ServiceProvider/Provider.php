@@ -53,6 +53,7 @@ class Provider
     protected $ns;
     protected $pattern;
     protected $func;
+    protected $is_prod;
     protected $alias;
 
     protected static $NS = array();
@@ -65,24 +66,32 @@ class Provider
         
         $this->pattern = $pattern;
 
-        $this->file   = $file;
-        $this->tmp    = $tmp;
-        $this->alias  = $alias;
-        $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
-        $this->ns   = sha1(realpath($file));
-        $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . $this->ns . '\\get_service';
+        $this->file    = $file;
+        $this->tmp     = $tmp;
+        $this->alias   = $alias;
+        $this->ns      = __NAMESPACE__ .'\\Generated\\Stage_' .sha1(realpath($file));
+        $this->fnc     = $this->ns . '\\get_service';
+        $this->is_prod = $this->ns . '\\is_production';
 
         if (isset(self::$NS[$this->ns])) {
-            $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . self::$NS[$this->ns] . '\\get_service';
+            $this->fnc      = self::$NS[$this->ns] . '\\get_service';
+            $this->is_prod  = self::$NS[$this->ns] . '\\is_production';
+        }
+
+        if (is_file($tmp)) {
+            require_once $tmp;
+            $prod = $this->is_prod;
+            if (is_callable($this->is_prod) && $prod()) {
+                /** we are in production mode :-) */
+                return;
+            }
         }
         
+        $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
         $this->tmpCache->watchGlob($pattern);
 
         if (!$this->tmpCache->hasChanged()) {
-            @include_once $tmp;
-            if (is_callable($this->fnc)) {
-                return;
-            }
+            return;
         }
         $this->tmpCache->watch();
 
@@ -216,11 +225,12 @@ class Provider
             ->watchDirs($dirs)
             ->watch();
 
+        $prod  = empty($default['devel']);
         $ns    = $this->ns;
         $self  = $this;
         $alias = $this->alias;
         $code  = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
-            ->setContext(compact('switch', 'ns', 'self', 'alias'))
+            ->setContext(compact('switch', 'ns', 'self', 'alias', 'prod'))
             ->run();
 
         File::write($this->tmp, $code);
@@ -232,12 +242,13 @@ class Provider
             foreach ($switch as &$service) {
                 $service['file'] = Path::getRelative($service['object']['file'], __FILE__);
             }
-            $ns   = uniqid(true);
+            $ns   = __NAMESPACE__ . '\Generated\Stage_' . uniqid(true);
             $code = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
-                ->setContext(compact('switch', 'ns', 'self'))
+                ->setContext(compact('switch', 'ns', 'self', 'prod'))
                 ->run();
             self::$NS[ $this->ns ] = $ns;
-            $this->fnc = 'ServiceProvider\Generated\Stage_' . $ns . '\get_service';
+            $this->fnc     = $ns . '\get_service';
+            $this->is_prod = $ns . '\is_production'; 
             eval(substr($code, 5));
         } else {
             require $this->tmp;

@@ -1,5 +1,5 @@
 <?php
-namespace ServiceProvider\Generated\Stage___ns__ 
+namespace __ns__ 
 {
     function get_service($service, $context = NULL)
     {
@@ -20,6 +20,11 @@ namespace ServiceProvider\Generated\Stage___ns__
         }
 
         return $return;
+    }
+
+    function is_production()
+    {
+        return __@prod__;
     }
 }
 

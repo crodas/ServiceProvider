@@ -1,4 +1,5 @@
 arg1: 'xxx'
+devel: true
 
 foobar:
     arg1: 'demo'
