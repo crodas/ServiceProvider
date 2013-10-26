@@ -75,11 +75,11 @@ class Provider
         if (isset(self::$NS[$this->ns])) {
             $this->fnc  = __NAMESPACE__ .'\\Generated\\Stage_' . self::$NS[$this->ns] . '\\get_service';
         }
-
+        
         $this->tmpCache->watchGlob($pattern);
 
-        if (!$this->tmpCache->hasChanged() && is_file($tmp)) {
-            require_once $tmp;
+        if (!$this->tmpCache->hasChanged()) {
+            @include_once $tmp;
             if (is_callable($this->fnc)) {
                 return;
             }
