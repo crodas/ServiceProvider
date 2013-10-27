@@ -31,7 +31,7 @@ namespace __ns__
 #* if ($alias)
 namespace
 {
-    use ServiceProvider\Generated\Stage___ns__ as f;
+    use __ns__ as f;
 
     class __alias__
     {
