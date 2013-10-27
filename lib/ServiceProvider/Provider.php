@@ -90,7 +90,7 @@ class Provider
         $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
         $this->tmpCache->watchGlob($pattern);
 
-        if (!$this->tmpCache->hasChanged()) {
+        if (!$this->tmpCache->hasChanged() && is_callable($this->fnc)) {
             return;
         }
         $this->tmpCache->watch();
@@ -156,6 +156,9 @@ class Provider
                 }
 
                 $params = array_merge($default, $config[$name]);
+                if (empty($config[$name])) {
+                    continue;
+                }
 
                 foreach ((array)$definition as $property => $def) {
                     if (!array_key_exists($property, $params)) {
@@ -221,10 +224,6 @@ class Provider
             $dirs[] = dirname($file);
         }
 
-        $this->tmpCache->watchFiles($files)
-            ->watchDirs($dirs)
-            ->watch();
-
         $prod  = empty($default['devel']);
         $ns    = $this->ns;
         $self  = $this;
@@ -253,6 +252,11 @@ class Provider
         } else {
             require $this->tmp;
         }
+
+        $this->tmpCache->watchFiles($files)
+            ->watchDirs($dirs)
+            ->watch();
+
     }
 
     public function getConfiguration($config)
