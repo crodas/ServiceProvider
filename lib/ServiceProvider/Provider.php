@@ -229,7 +229,7 @@ class Provider
         $self  = $this;
         $alias = $this->alias;
         $code  = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
-            ->setContext(compact('switch', 'ns', 'self', 'alias', 'prod'))
+            ->setContext(compact('switch', 'ns', 'self', 'alias', 'prod', 'default'))
             ->run();
 
         File::write($this->tmp, $code);
@@ -243,7 +243,7 @@ class Provider
             }
             $ns   = __NAMESPACE__ . '\Generated\Stage_' . uniqid(true);
             $code = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
-                ->setContext(compact('switch', 'ns', 'self', 'prod'))
+                ->setContext(compact('switch', 'ns', 'self', 'prod', 'default'))
                 ->run();
             self::$NS[ $this->ns ] = $ns;
             $this->fnc     = $ns . '\get_service';

@@ -15,6 +15,12 @@ namespace __ns__
         #   $definition  = $args['definition']
         #   include("service.tpl.php")
         # end
+        # foreach ($default as $key => $value)
+        case __@key__:
+            $return = __@value__;
+            break;
+
+        #* end
         default:
             throw new \ServiceProvider\NotFoundException("cannot find service {$service}");
         }
