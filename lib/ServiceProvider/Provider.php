@@ -155,17 +155,17 @@ class Provider
                     $config[$name] = array();
                 }
 
-                $params = array_merge($default, $config[$name]);
-                if (empty($config[$name])) {
-                    continue;
-                }
+                $params    = array_merge($default, $config[$name]);
+                $has_value = !empty($config[$name]);
 
                 foreach ((array)$definition as $property => $def) {
                     if (!array_key_exists($property, $params)) {
                         if (array_key_exists('default', $def)) {
                             $params[$property] = $def['default'];
-                        } else {
+                        } else if ($has_value) {
                             throw new \Exception("Missing configuration {$property} for service {$name}");
+                        } else {
+                            break;
                         }
                     }
 
