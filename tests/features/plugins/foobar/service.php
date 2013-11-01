@@ -6,7 +6,9 @@ class Something
      *  @Service(foobar, {
      *      arg1: {default: 'demo'},
      *      foo: {default: 'foobar'},
-     *      empty: {default: ''}
+     *      empty: {default: ''},
+     *      yyy: {type: dir, default: '../'},
+     *      xxx: {type: file, default: '../service.php'},
      *  }, {shared:true})
      */
     function foobar($config, $context)

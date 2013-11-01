@@ -11,6 +11,25 @@ class SimpleTest extends \phpunit_framework_testcase
         );
     }
 
+    public static function providerError()
+    {
+        return array(
+            array('error.dir.yml'),
+            array('error.file.yml'),
+            array('error.dir1.yml'),
+            array('error.file1.yml'),
+        );
+    }
+
+    /**
+     *  @dataProvider providerError
+     *  @expectedException \RuntimeException
+     */
+    public function testCompileError($zfile)
+    {
+        $services = getService($zfile);
+    }
+
     /**
      *  @dataProvider provider
      */
