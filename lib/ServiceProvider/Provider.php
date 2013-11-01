@@ -218,7 +218,6 @@ class Provider
                                 if (empty($realpath)) {
                                     throw new \RuntimeException("{$property}[{$id}]: Cannot find {$path} (relative to {$this->file})");
                                 }
-                                $check = "is_{$def['type']}";
                                 if (!$check($realpath)) {
                                     throw new \RuntimeException("{$property}[{$id}]: {$realpath} is not a {$def['type']}");
                                 }
