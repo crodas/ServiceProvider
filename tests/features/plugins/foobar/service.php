@@ -9,6 +9,8 @@ class Something
      *      empty: {default: ''},
      *      yyy: {type: dir, default: '../'},
      *      xxx: {type: file, default: '../service.php'},
+     *      x: {type: array_file, default: []},
+     *      y: {type: array_dir, default: []},
      *  }, {shared:true})
      */
     function foobar($config, $context)

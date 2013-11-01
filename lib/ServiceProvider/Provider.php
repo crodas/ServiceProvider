@@ -192,13 +192,39 @@ class Provider
                             }
                             $realpath = realpath($realpath);
                             if (empty($realpath)) {
-                                throw new \RuntimeException("Cannot find {$value} (relative to {$this->file})");
+                                throw new \RuntimeException("{$property}: Cannot find {$value} (relative to {$this->file})");
                             }
                             $check = "is_{$def['type']}";
                             if (!$check($realpath)) {
-                                throw new \RuntimeException("{$realpath} is not a {$def['type']}");
+                                throw new \RuntimeException("{$property}: {$realpath} is not a {$def['type']}");
                             }
                             $params[$property] = $realpath;
+                            break;
+                        case 'array_dir':
+                        case 'array_file':
+                            if (!is_array($value)) {
+                                throw new \RuntimeException("{$property} should be an array");
+                            }
+                            $values = array();
+                            $check  = "is_" . substr($def['type'], 6);
+                            $base   = dirname($this->file);
+                            foreach ($value as $id => $path) {
+                                $realpath = $path;
+                                if ($realpath[0] != '/') {
+                                    // relative path
+                                    $realpath = $base . DIRECTORY_SEPARATOR . $realpath;
+                                }
+                                $realpath = realpath($realpath);
+                                if (empty($realpath)) {
+                                    throw new \RuntimeException("{$property}[{$id}]: Cannot find {$path} (relative to {$this->file})");
+                                }
+                                $check = "is_{$def['type']}";
+                                if (!$check($realpath)) {
+                                    throw new \RuntimeException("{$property}[{$id}]: {$realpath} is not a {$def['type']}");
+                                }
+                                $values[] = $realpath;
+                            }
+                            $params[$property] = $values;
                             break;
                         case 'service':
                             if (!($value instanceof Compiler\ServiceCall)) {
