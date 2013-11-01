@@ -18,6 +18,8 @@ class SimpleTest extends \phpunit_framework_testcase
             array('error.file.yml'),
             array('error.dir1.yml'),
             array('error.file1.yml'),
+            array('error.dir2.yml'),
+            array('error.file2.yml'),
         );
     }
 
