@@ -2,15 +2,15 @@
     "name": "crodas/service-provider",
     "description": "Little configuration manager and dependency injection",
     "require": {
-        "crodas/artifex": "*",
-        "crodas/notoj": "*",
+        "crodas/artifex": "~0.1",
+        "crodas/notoj": "~0.1",
         "symfony/yaml": "*",
-        "crodas/watch-files": "*",
+        "crodas/watch-files": "~0.1",
         "seld/jsonlint": "*",
-        "crodas/path": "*"
+        "crodas/path": "~0.1"
     },
     "license": "BSD-4-Clause",
-    "version": "v0.1.3",
+    "version": "v0.1.4",
     "authors": [
         {
             "name": "César D. Rodas",

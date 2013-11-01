@@ -183,6 +183,23 @@ class Provider
                                 throw new \Exception("{$property} should be {$def['type']}");
                             }
                             break;
+                        case 'dir':
+                        case 'file':
+                            $realpath = $value;
+                            if ($realpath[0] != '/') {
+                                // relative path
+                                $realpath = dirname($this->file) . DIRECTORY_SEPARATOR . $realpath;
+                            }
+                            $realpath = realpath($realpath);
+                            if (empty($realpath)) {
+                                throw new \RuntimeException("Cannot find {$value} (relative to {$this->file})");
+                            }
+                            $check = "is_{$def['type']}";
+                            if (!$check($realpath)) {
+                                throw new \RuntimeException("{$realpath} is not a {$def['type']}");
+                            }
+                            $params[$property] = $realpath;
+                            break;
                         case 'service':
                             if (!($value instanceof Compiler\ServiceCall)) {
                                 throw new \Exception("{$property} should be any service");
