@@ -266,6 +266,10 @@ class Provider
             $dirs[] = dirname($file);
         }
 
+        foreach (array_diff(array_keys($config), array_keys($switch)) as $key) {
+            $default[$key] = $config[$key];
+        }
+
         $prod  = empty($default['devel']);
         $ns    = $this->ns;
         $self  = $this;
