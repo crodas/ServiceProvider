@@ -37,10 +37,12 @@ namespace
 
         @foreach ($switch as $service)
             @foreach ($service['names'] as $name)
+                @if (preg_match("/^[a-z][a-z0-9_]*$/", $name))
         public static function {{$name}}($context = null)
         {
             return f\get_service({{@$name}}, $context);
         }
+                @end
             @end
         @end
     }
