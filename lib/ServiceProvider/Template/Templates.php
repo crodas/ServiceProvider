@@ -85,9 +85,11 @@ namespace {
                 echo "namespace\n{\n    use " . ($ns) . " as f;\n\n    class " . ($alias) . "\n    {\n        public static function get(\$service, \$context = null)\n        {\n            return f\\get_service(\$service, \$context);\n        }\n\n";
                 foreach($switch as $service) {
                     foreach($service['names'] as $name) {
-                        echo "        public static function " . ($name) . "(\$context = null)\n        {\n            return f\\get_service(";
-                        var_export($name);
-                        echo ", \$context);\n        }\n";
+                        if (preg_match("/^[a-z][a-z0-9_]*$/", $name)) {
+                            echo "        public static function " . ($name) . "(\$context = null)\n        {\n            return f\\get_service(";
+                            var_export($name);
+                            echo ", \$context);\n        }\n";
+                        }
                     }
                 }
                 echo "    }\n}\n";
