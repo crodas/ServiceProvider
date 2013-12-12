@@ -45,6 +45,17 @@ namespace
         {
             return f\get_service($service, $context);
         }
+
+        #* foreach ($switch as $args)
+        #   $names = $args['names']
+        #   foreach ($names as $name)
+        public static function __name__($context = null)
+        {
+            return f\get_service(__@name__, $context);
+        }
+
+        #* end
+        # end
     }
 }
 #* end
