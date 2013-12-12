@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "0f5462a7eeacb03feb5e87fb0d01456b",
+    "hash": "a790fd0f1b455387c97675ed34e27c6d",
     "packages": [
         {
             "name": "crodas/artifex",
@@ -145,6 +145,44 @@
             "time": "2013-10-23 16:48:11"
         },
         {
+            "name": "crodas/simple-view-engine",
+            "version": "v0.1.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/crodas/SimpleView.git",
+                "reference": "c68dcccc2e39039b202fe1a8c3c996ee2844391e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/crodas/SimpleView/zipball/c68dcccc2e39039b202fe1a8c3c996ee2844391e",
+                "reference": "c68dcccc2e39039b202fe1a8c3c996ee2844391e",
+                "shasum": ""
+            },
+            "require": {
+                "crodas/watch-files": "*",
+                "symfony/console": "*",
+                "symfony/finder": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-4-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "César D. Rodas",
+                    "email": "crodas@php.net"
+                }
+            ],
+            "description": "Simple View engine designed to generate code. Based on Laravel's 4 Blade.",
+            "time": "2013-11-01 05:18:28"
+        },
+        {
             "name": "crodas/watch-files",
             "version": "v0.1.3",
             "source": {
@@ -226,6 +264,106 @@
                 "validator"
             ],
             "time": "2013-10-29 14:29:52"
+        },
+        {
+            "name": "symfony/console",
+            "version": "dev-master",
+            "target-dir": "Symfony/Component/Console",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Console.git",
+                "reference": "ff8d5444c1b4dc7675aaeecd35f7ed1f0872c242"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/ff8d5444c1b4dc7675aaeecd35f7ed1f0872c242",
+                "reference": "ff8d5444c1b4dc7675aaeecd35f7ed1f0872c242",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher": "~2.1"
+            },
+            "suggest": {
+                "symfony/event-dispatcher": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.5-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Console\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Console Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-11-28 10:27:35"
+        },
+        {
+            "name": "symfony/finder",
+            "version": "dev-master",
+            "target-dir": "Symfony/Component/Finder",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Finder.git",
+                "reference": "46881af03b48e942001e8e9450c2c4ccaeccfc8d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Finder/zipball/46881af03b48e942001e8e9450c2c4ccaeccfc8d",
+                "reference": "46881af03b48e942001e8e9450c2c4ccaeccfc8d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.5-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Finder\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Finder Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-11-26 16:42:52"
         },
         {
             "name": "symfony/yaml",

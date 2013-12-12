@@ -2,12 +2,12 @@
     "name": "crodas/service-provider",
     "description": "Little configuration manager and dependency injection",
     "require": {
-        "crodas/artifex": "~0.1",
         "crodas/notoj": "~0.1",
         "symfony/yaml": "*",
         "crodas/watch-files": "~0.1",
         "seld/jsonlint": "*",
-        "crodas/path": "~0.1"
+        "crodas/path": "~0.1",
+        "crodas/simple-view-engine": "~0.1"
     },
     "license": "BSD-4-Clause",
     "version": "v0.1.8",

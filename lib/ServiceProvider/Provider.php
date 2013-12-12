@@ -43,6 +43,7 @@ use Artifex;
 use WatchFiles\Watch;
 use crodas\Path;
 use crodas\File;
+use crodas\SimpleView\FixCode;
 
 class Provider
 {
@@ -274,11 +275,10 @@ class Provider
         $ns    = $this->ns;
         $self  = $this;
         $alias = $this->alias;
-        $code  = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
-            ->setContext(compact('switch', 'ns', 'self', 'alias', 'prod', 'default'))
-            ->run();
+        $code  = Template\Templates::get('services')
+            ->render(compact('switch', 'ns', 'self', 'alias', 'prod', 'default'), true);
 
-        File::write($this->tmp, $code);
+        File::write($this->tmp, FixCode::fix($code));
 
         if (is_callable($this->fnc)) {
             // PHP is a bitch, it won't let use re-define
@@ -288,9 +288,9 @@ class Provider
                 $service['file'] = Path::getRelative($service['object']['file'], __FILE__);
             }
             $ns   = __NAMESPACE__ . '\Generated\Stage_' . uniqid(true);
-            $code = Artifex::load(__DIR__ . '/Compiler/services.tpl.php')
-                ->setContext(compact('switch', 'ns', 'self', 'prod', 'default'))
-                ->run();
+            $code = Template\Templates::get('services')
+                ->render(compact('switch', 'ns', 'self', 'prod', 'default'), true);
+
             self::$NS[ $this->ns ] = $ns;
             $this->fnc     = $ns . '\get_service';
             $this->is_prod = $ns . '\is_production'; 
