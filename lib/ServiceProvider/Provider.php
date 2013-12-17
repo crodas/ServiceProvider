@@ -252,7 +252,8 @@ class Provider
 
                 $file   = Path::getRelative($object['file'], $this->tmp);
                 $names  = array($name);
-                $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition');
+                $shared = !empty($args[2]['shared']);
+                $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition', 'shared');
             }
         }
 
