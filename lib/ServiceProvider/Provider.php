@@ -204,17 +204,26 @@ class Provider
                         case 'array_dir':
                         case 'array_file':
                             if (!is_array($value)) {
-                                throw new \RuntimeException("{$property} should be an array");
+                                $value = (array)$value;
                             }
                             $values = array();
                             $check  = "is_" . substr($def['type'], 6);
                             $base   = dirname($this->file);
+
                             foreach ($value as $id => $path) {
-                                $realpath = $path;
-                                if ($realpath[0] != '/') {
+                                if ($path[0] != '/') {
                                     // relative path
-                                    $realpath = $base . DIRECTORY_SEPARATOR . $realpath;
+                                    $path = $base . DIRECTORY_SEPARATOR . $path;
                                 }
+                                if (preg_match('/\*/', $path)) {
+                                    unset($value[$id]);
+                                    $value = array_merge($value, array_filter(glob($path), $check));
+                                } else {
+                                    $value[$id] = $path;
+                                }
+                            }
+
+                            foreach ($value as $id => $realpath) {
                                 $realpath = realpath($realpath);
                                 if (empty($realpath)) {
                                     throw new \RuntimeException("{$property}[{$id}]: Cannot find {$path} (relative to {$this->file})");

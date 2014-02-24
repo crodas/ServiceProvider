@@ -82,7 +82,15 @@ namespace {
             }
             echo "        default:\n            throw new \\ServiceProvider\\NotFoundException(\"cannot find service {\$service}\");\n        }\n\n        return \$return;\n    }\n}\n\n";
             if (!empty($alias)) {
-                echo "namespace\n{\n    use " . ($ns) . " as f;\n\n    class " . ($alias) . "\n    {\n        public static function get(\$service, \$context = null)\n        {\n            return f\\get_service(\$service, \$context);\n        }\n\n";
+                echo "namespace\n{\n    use " . ($ns) . " as f;\n\n    class " . ($alias) . "\n    {\n";
+                foreach($default as $key => $value) {
+                    if (is_scalar($value)) {
+                        echo "        static \$" . ($key) . " = ";
+                        var_export($value);
+                        echo ";\n";
+                    }
+                }
+                echo "\n        public static function get(\$service, \$context = null)\n        {\n            return f\\get_service(\$service, \$context);\n        }\n\n";
                 foreach($switch as $service) {
                     foreach($service['names'] as $name) {
                         if (preg_match("/^[a-z][a-z0-9_]*$/", $name)) {
