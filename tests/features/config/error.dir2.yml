@@ -3,4 +3,4 @@ devel: true
 
 foobar:
     arg1: 'demo'
-    x: ['dasdaksjdkasjda']
+    x: ['dasdaksjdkasjda', '*']
