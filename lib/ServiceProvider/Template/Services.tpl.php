@@ -30,6 +30,12 @@ namespace
 
     class {{$alias}}
     {
+        @foreach ($default as $key => $value)
+            @if (is_scalar($value))
+        static ${{$key}} = {{@$value}};
+            @end
+        @end
+
         public static function get($service, $context = null)
         {
             return f\get_service($service, $context);
