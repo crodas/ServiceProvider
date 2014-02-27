@@ -106,6 +106,48 @@ class Provider
         $this->generate();
     }
 
+    protected function validate_files($values, $type, $property)
+    {
+        $values = (Array)$values;
+        $base   = dirname($this->file);
+        foreach ($values as $id => $path) {
+            if ($path[0] != '/') {
+                // relative path
+                $path = $base . DIRECTORY_SEPARATOR . $path;
+            }
+            if (preg_match('/\*/', $path)) {
+                unset($values[$id]);
+                $values = array_merge($values, array_filter(glob($path), 'is_' . $type));
+            } else {
+                $values[$id] = $path;
+            }
+        }
+
+        $paths = array();
+        foreach ($values as $id => $realpath) {
+            $paths[] = $this->validate_file($realpath, $type, $property . "." . $id);
+        }
+        return $paths;
+    }
+
+    protected function validate_file($value, $type, $property)
+    {
+        $realpath = $value;
+        if ($realpath[0] != '/') {
+            // relative path
+            $realpath = dirname($this->file) . DIRECTORY_SEPARATOR . $realpath;
+        }
+        $realpath = realpath($realpath);
+        if (empty($realpath)) {
+            throw new \RuntimeException("{$property}: Cannot find {$value} (relative to {$this->file})");
+        }
+        $check = "is_{$type}";
+        if (!$check($realpath)) {
+            throw new \RuntimeException("{$property}: {$realpath} is not a {$type}");
+        }
+        return $realpath;
+    }
+
     protected function generate()
     {
         $parser = new Parser;
@@ -134,6 +176,20 @@ class Provider
         foreach ($config as $key => $value) {
             if (is_scalar($value)) {
                 $default[$key] = $value;
+            }
+        }
+
+        if (!empty($config['service-provider']['path'])) {
+            $dirs = $this->validate_files($config['service-provider']['path'], 'dir', 'path');
+            $rebuild = false;
+            foreach ($dirs as $dir) {
+                if (!in_array($dir, $this->files)) {
+                    $this->files[] = $dir;
+                    $rebuild = true;
+                }
+            }
+            if ($rebuild) {
+                return $this->generate();
             }
         }
 
@@ -205,54 +261,11 @@ class Provider
                             break;
                         case 'dir':
                         case 'file':
-                            $realpath = $value;
-                            if ($realpath[0] != '/') {
-                                // relative path
-                                $realpath = dirname($this->file) . DIRECTORY_SEPARATOR . $realpath;
-                            }
-                            $realpath = realpath($realpath);
-                            if (empty($realpath)) {
-                                throw new \RuntimeException("{$property}: Cannot find {$value} (relative to {$this->file})");
-                            }
-                            $check = "is_{$def['type']}";
-                            if (!$check($realpath)) {
-                                throw new \RuntimeException("{$property}: {$realpath} is not a {$def['type']}");
-                            }
-                            $params[$property] = $realpath;
+                            $params[$property] = $this->validate_file($value, $def['type'], $property);
                             break;
                         case 'array_dir':
                         case 'array_file':
-                            if (!is_array($value)) {
-                                $value = (array)$value;
-                            }
-                            $values = array();
-                            $check  = "is_" . substr($def['type'], 6);
-                            $base   = dirname($this->file);
-
-                            foreach ($value as $id => $path) {
-                                if ($path[0] != '/') {
-                                    // relative path
-                                    $path = $base . DIRECTORY_SEPARATOR . $path;
-                                }
-                                if (preg_match('/\*/', $path)) {
-                                    unset($value[$id]);
-                                    $value = array_merge($value, array_filter(glob($path), $check));
-                                } else {
-                                    $value[$id] = $path;
-                                }
-                            }
-
-                            foreach ($value as $id => $realpath) {
-                                $realpath = realpath($realpath);
-                                if (empty($realpath)) {
-                                    throw new \RuntimeException("{$property}[{$id}]: Cannot find {$path} (relative to {$this->file})");
-                                }
-                                if (!$check($realpath)) {
-                                    throw new \RuntimeException("{$property}[{$id}]: {$realpath} is not a {$def['type']}");
-                                }
-                                $values[] = $realpath;
-                            }
-                            $params[$property] = $values;
+                            $params[$property] = $this->validate_files($value, substr($def['type'], 6), $property);
                             break;
                         case 'service':
                             if (!($value instanceof Compiler\ServiceCall)) {
