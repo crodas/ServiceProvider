@@ -39,6 +39,10 @@ class SimpleTest extends \phpunit_framework_testcase
     {
         $services = getService($zfile);
         $this->assertTrue($services instanceof ServiceProvider\Provider);
+        if ($zfile == 'foo.yml') {
+            $foo = $services->get('foo');
+            $this->assertTrue($foo['done']);
+        }
     }
 
     /**
