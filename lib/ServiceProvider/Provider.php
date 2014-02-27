@@ -172,6 +172,25 @@ class Provider
 
                     $value = $params[$property];
 
+                    foreach ((array)$value as $id => $val) {
+                        preg_match_all("/%([a-z_][a-z_0-9]*)%/i", $val, $parts);
+                        if (!empty($parts[1])) {
+                            $rvalue = $val;
+                            foreach ($parts[1] as $v) {
+                                if (array_key_exists($v, $default)) {
+                                    $rvalue = str_replace("%$v%", $default[$v], $rvalue);
+                                } else {
+                                    throw new \RuntimeException("Cannot find variable %$v%");
+                                }
+                            }
+                            if (is_scalar($value)) {
+                                $value = $rvalue;
+                            } else {
+                                $value[$id] = $rvalue;
+                            }
+                        }
+                    }
+
                     if (!empty($def['type'])) {
                         switch ($def['type']) {
                         case 'integer':
