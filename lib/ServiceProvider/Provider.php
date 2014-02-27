@@ -106,6 +106,30 @@ class Provider
         $this->generate();
     }
 
+    protected function eval_variables($value, Array $default)
+    {
+        foreach ((array)$value as $id => $val) {
+            preg_match_all("/%([a-z_][a-z_0-9]*)%/i", $val, $parts);
+            if (!empty($parts[1])) {
+                $rvalue = $val;
+                foreach ($parts[1] as $v) {
+                    if (array_key_exists($v, $default)) {
+                        $rvalue = str_replace("%$v%", $default[$v], $rvalue);
+                    } else {
+                        throw new \RuntimeException("Cannot find variable %$v%");
+                    }
+                }
+                if (is_scalar($value)) {
+                    $value = $rvalue;
+                } else {
+                    $value[$id] = $rvalue;
+                }
+            }
+        }
+        return $value;
+    }
+
+
     protected function validate_files($values, $type, $property)
     {
         $values = (Array)$values;
@@ -116,12 +140,18 @@ class Provider
                 $path = $base . DIRECTORY_SEPARATOR . $path;
             }
             if (preg_match('/\*/', $path)) {
-                unset($values[$id]);
-                $values = array_merge($values, array_filter(glob($path), 'is_' . $type));
+                $paths = 
+                $values[$id] = array_filter(glob($path),  'is_' . $type);
             } else {
-                $values[$id] = $path;
+                $values[$id] = array($path);
             }
         }
+
+        if (empty($values)) {
+            return array();
+        }
+
+        $values = call_user_func_array('array_merge', $values);
 
         $paths = array();
         foreach ($values as $id => $realpath) {
@@ -180,7 +210,8 @@ class Provider
         }
 
         if (!empty($config['service-provider']['path'])) {
-            $dirs = $this->validate_files($config['service-provider']['path'], 'dir', 'path');
+            $value =  $this->eval_variables($config['service-provider']['path'], $default);
+            $dirs = $this->validate_files($value, 'readable', 'path');
             $rebuild = false;
             foreach ($dirs as $dir) {
                 if (!in_array($dir, $this->files)) {
@@ -226,26 +257,7 @@ class Provider
                         }
                     }
 
-                    $value = $params[$property];
-
-                    foreach ((array)$value as $id => $val) {
-                        preg_match_all("/%([a-z_][a-z_0-9]*)%/i", $val, $parts);
-                        if (!empty($parts[1])) {
-                            $rvalue = $val;
-                            foreach ($parts[1] as $v) {
-                                if (array_key_exists($v, $default)) {
-                                    $rvalue = str_replace("%$v%", $default[$v], $rvalue);
-                                } else {
-                                    throw new \RuntimeException("Cannot find variable %$v%");
-                                }
-                            }
-                            if (is_scalar($value)) {
-                                $value = $rvalue;
-                            } else {
-                                $value[$id] = $rvalue;
-                            }
-                        }
-                    }
+                    $value =  $this->eval_variables($params[$property], $default);
 
                     if (!empty($def['type'])) {
                         switch ($def['type']) {
@@ -261,11 +273,17 @@ class Provider
                             break;
                         case 'dir':
                         case 'file':
+                        case 'path':
+                            $type = $def['type'];
+                            $type = $type == 'path' ? 'readable' : $type;
                             $params[$property] = $this->validate_file($value, $def['type'], $property);
                             break;
                         case 'array_dir':
                         case 'array_file':
-                            $params[$property] = $this->validate_files($value, substr($def['type'], 6), $property);
+                        case 'array_path':
+                            $type = substr($def['type'], 6);
+                            $type = $type == 'path' ? 'readable' : $type;
+                            $params[$property] = $this->validate_files($value, $type, $property);
                             break;
                         case 'service':
                             if (!($value instanceof Compiler\ServiceCall)) {
