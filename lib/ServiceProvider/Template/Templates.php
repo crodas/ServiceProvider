@@ -74,11 +74,13 @@ namespace {
                 ServiceProvider\Template\Templates::exec('service', compact('service'), $this->context);
             }
             foreach($default as $key => $value) {
-                echo "        case ";
-                var_export($key);
-                echo ":\n            \$return = ";
-                var_export($value);
-                echo ";\n            break;\n";
+                if ($value instanceof ServiceProvider\Compiler\ServiceCall) {
+                    echo "        case ";
+                    var_export($key);
+                    echo ":\n            \$return = ";
+                    var_export($value);
+                    echo "; \n            break;\n";
+                }
             }
             echo "        default:\n            throw new \\ServiceProvider\\NotFoundException(\"cannot find service {\$service}\");\n        }\n\n        return \$return;\n    }\n}\n\n";
             if (!empty($alias)) {

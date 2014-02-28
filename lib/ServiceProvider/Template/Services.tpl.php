@@ -11,9 +11,11 @@ namespace {{$ns}}
             @include('service', compact('service'))
         @end
         @foreach ($default as $key => $value)
+        @if (!$value instanceof ServiceProvider\Compiler\ServiceCall)
         case {{@$key}}:
-            $return = {{@$value}};
+            $return = {{@$value}}; 
             break;
+        @end
         @end
         default:
             throw new \ServiceProvider\NotFoundException("cannot find service {$service}");
