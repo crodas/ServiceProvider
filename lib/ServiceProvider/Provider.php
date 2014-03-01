@@ -163,10 +163,13 @@ class Provider
         }
 
         $services = new Services($this, $config, $annotations);
+        $events   = new Events($this, $config, $annotations);
+
         if ($services->isExtensible()) {
             return $this->generate();
         }
 
+        $events = $events->main($default);
         list($switch, $names) = $services->main($default);
 
         foreach (array_diff(array_keys($config), array_keys($switch)) as $key) {
@@ -178,7 +181,7 @@ class Provider
         $self  = $this;
         $alias = $this->alias;
         $code  = Template\Templates::get('services')
-            ->render(compact('switch', 'ns', 'self', 'alias', 'prod', 'default'), true);
+            ->render(compact('switch', 'ns', 'self', 'alias', 'prod', 'default', 'events'), true);
 
         File::write($this->tmp, FixCode::fix($code));
 
@@ -191,7 +194,7 @@ class Provider
             }
             $ns   = __NAMESPACE__ . '\Generated\Stage_' . uniqid(true);
             $code = Template\Templates::get('services')
-                ->render(compact('switch', 'ns', 'self', 'prod', 'default'), true);
+                ->render(compact('switch', 'ns', 'self', 'prod', 'default', 'events'), true);
 
             self::$NS[ $this->ns ] = $ns;
             $this->fnc     = $ns . '\get_service';
