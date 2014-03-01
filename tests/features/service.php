@@ -5,14 +5,16 @@ namespace something;
  *  @EventSubscriber(foo.bar, 10)
  */
 function on_foo_bar_2($event) {
-    die('here');
+    $args = $event->getArguments();
+    $args['this']->x = 2;
 }
 
 /**
  *  @EventSubscriber(foo.bar, 5)
  */
 function on_foo_bar($event) {
-    die('here');
+    $args = $event->getArguments();
+    $args['this']->x += 1;
 }
 
 /**

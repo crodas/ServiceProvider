@@ -74,7 +74,7 @@ namespace {
                 echo "            case ";
                 var_export($name);
                 echo ":\n";
-                foreach($handlers as $handler) {
+                foreach($handlers as $i => $handler) {
                     if ($handler->isFunction()) {
                         echo "                        if (!is_callable(";
                         var_export($handler['function']);
@@ -89,11 +89,11 @@ namespace {
                         var_export($handler['file']);
                         echo ";\n                        }\n                        \$object = new \\" . ($handler['class']) . ";\n                        \$object->" . ($handler['function']) . "(\$event);\n";
                     }
-                    echo "                    if (\$event->isPropagationStopped()) {\n                        return \$event;\n                    }\n";
+                    echo "                    if (\$event->isPropagationStopped()) {\n                        \$event->setCalls(" . ($i+1) . ");\n                        return \$event;\n                    }\n";
                 }
-                echo "                break;\n";
+                echo "                \$event->setCalls(" . ($i+1) . ");\n                break;\n\n";
             }
-            echo "            }\n\n            return \$event;\n        }\n    }\n\n    function get_service(\$service, \$context = NULL)\n    {\n        static \$services = array();\n\n        switch (\$service) {\n        case 'event_handler':\n            \$return = new EventManager;\n            break;\n";
+            echo "            }\n\n            return \$event;\n        }\n    }\n\n    function get_service(\$service, \$context = NULL)\n    {\n        static \$services = array();\n\n        switch (\$service) {\n        case 'event_manager':\n            if (!empty(\$services['event_manager'])) {\n                return \$services['event_manager'];\n            }\n            \$return = new EventManager;\n            \$services['event_manager'] = \$return;\n            break;\n";
             foreach($switch as $service) {
                 ServiceProvider\Template\Templates::exec('service', compact('service'), $this->context);
             }

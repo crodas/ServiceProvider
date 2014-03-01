@@ -11,7 +11,7 @@ namespace {{$ns}}
             switch (strtolower($name)) {
             @foreach ($events as $name => $handlers)
             case {{@$name}}:
-                @foreach ($handlers as $handler)
+                @foreach ($handlers as $i => $handler)
                     @if ($handler->isFunction())
                         if (!is_callable({{@$handler['function']}})) {
                             require {{@$handler['file']}};
@@ -25,10 +25,13 @@ namespace {{$ns}}
                         $object->{{$handler['function']}}($event);
                     @end
                     if ($event->isPropagationStopped()) {
+                        $event->setCalls({{$i+1}});
                         return $event;
                     }
                 @end
+                $event->setCalls({{$i+1}});
                 break;
+
             @end
             }
 
@@ -41,8 +44,12 @@ namespace {{$ns}}
         static $services = array();
 
         switch ($service) {
-        case 'event_handler':
+        case 'event_manager':
+            if (!empty($services['event_manager'])) {
+                return $services['event_manager'];
+            }
             $return = new EventManager;
+            $services['event_manager'] = $return;
             break;
         @foreach ($switch as $service)
             @include('service', compact('service'))
