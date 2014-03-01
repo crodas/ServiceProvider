@@ -74,7 +74,7 @@ namespace {
                 ServiceProvider\Template\Templates::exec('service', compact('service'), $this->context);
             }
             foreach($default as $key => $value) {
-                if ($value instanceof ServiceProvider\Compiler\ServiceCall) {
+                if (!$value instanceof ServiceProvider\Compiler\ServiceCall) {
                     echo "        case ";
                     var_export($key);
                     echo ":\n            \$return = ";
