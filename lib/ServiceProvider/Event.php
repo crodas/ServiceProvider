@@ -59,6 +59,11 @@ class Event
         $this->calls = intval($i);
     }
 
+    public function stopPropagation()
+    {
+        $this->stopped = true;
+    }
+
     public function isPropagationStopped()
     {
         return $this->stopped;
