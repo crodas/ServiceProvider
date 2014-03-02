@@ -69,12 +69,36 @@ namespace {
             if ($return) {
                 ob_start();
             }
-            echo "<?php\n\nnamespace " . ($ns) . "\n{\n    function get_service(\$service, \$context = NULL)\n    {\n        static \$services = array();\n\n        switch (\$service) {\n";
+            echo "<?php\n\nnamespace " . ($ns) . "\n{\n    class EventManager\n    {\n        public function trigger(\$name, Array \$args = array())\n        {\n            \$event = new \\ServiceProvider\\Event(\$name, \$args);\n\n            switch (strtolower(\$name)) {\n";
+            foreach($events as $name => $handlers) {
+                echo "            case ";
+                var_export($name);
+                echo ":\n";
+                foreach($handlers as $i => $handler) {
+                    if ($handler->isFunction()) {
+                        echo "                        if (!is_callable(";
+                        var_export($handler['function']);
+                        echo ")) {\n                            require ";
+                        var_export($handler['file']);
+                        echo ";\n                        }\n                        \\" . ($handler['function']) . "(\$event);\n";
+                    }
+                    else {
+                        echo "                        if (!class_exists(";
+                        var_export($handler['class']);
+                        echo ", false)) {\n                            require ";
+                        var_export($handler['file']);
+                        echo ";\n                        }\n                        \$object = new \\" . ($handler['class']) . ";\n                        \$object->" . ($handler['function']) . "(\$event);\n";
+                    }
+                    echo "                    if (\$event->isPropagationStopped()) {\n                        \$event->setCalls(" . ($i+1) . ");\n                        return \$event;\n                    }\n";
+                }
+                echo "                \$event->setCalls(" . ($i+1) . ");\n                break;\n\n";
+            }
+            echo "            }\n\n            return \$event;\n        }\n    }\n\n    function get_service(\$service, \$context = NULL)\n    {\n        static \$services = array();\n\n        switch (\$service) {\n        case 'event_manager':\n            if (!empty(\$services['event_manager'])) {\n                return \$services['event_manager'];\n            }\n            \$return = new EventManager;\n            \$services['event_manager'] = \$return;\n            break;\n";
             foreach($switch as $service) {
                 ServiceProvider\Template\Templates::exec('service', compact('service'), $this->context);
             }
             foreach($default as $key => $value) {
-                if ($value instanceof ServiceProvider\Compiler\ServiceCall) {
+                if (!$value instanceof ServiceProvider\Compiler\ServiceCall) {
                     echo "        case ";
                     var_export($key);
                     echo ":\n            \$return = ";
