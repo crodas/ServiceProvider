@@ -2,11 +2,55 @@
 
 namespace {{$ns}}
 {
+    class EventManager
+    {
+        public function trigger($name, Array $args = array())
+        {
+            $event = new \ServiceProvider\Event($name, $args);
+
+            switch (strtolower($name)) {
+            @foreach ($events as $name => $handlers)
+            case {{@$name}}:
+                @foreach ($handlers as $i => $handler)
+                    @if ($handler->isFunction())
+                        if (!is_callable({{@$handler['function']}})) {
+                            require {{@$handler['file']}};
+                        }
+                        \{{$handler['function']}}($event);
+                    @else
+                        if (!class_exists({{@$handler['class']}}, false)) {
+                            require {{@$handler['file']}};
+                        }
+                        $object = new \{{$handler['class']}};
+                        $object->{{$handler['function']}}($event);
+                    @end
+                    if ($event->isPropagationStopped()) {
+                        $event->setCalls({{$i+1}});
+                        return $event;
+                    }
+                @end
+                $event->setCalls({{$i+1}});
+                break;
+
+            @end
+            }
+
+            return $event;
+        }
+    }
+
     function get_service($service, $context = NULL)
     {
         static $services = array();
 
         switch ($service) {
+        case 'event_manager':
+            if (!empty($services['event_manager'])) {
+                return $services['event_manager'];
+            }
+            $return = new EventManager;
+            $services['event_manager'] = $return;
+            break;
         @foreach ($switch as $service)
             @include('service', compact('service'))
         @end

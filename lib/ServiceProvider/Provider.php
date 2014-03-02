@@ -59,6 +59,30 @@ class Provider
 
     protected static $NS = array();
 
+    public function getTemp()
+    {
+        return $this->tmp;
+    }
+
+    public function getFiles()
+    {
+        return $this->files;
+    }
+
+    public function addFile($file)
+    {
+        if (!in_array($file, $this->files)) {
+            $this->files[] = $file;
+            return true;
+        }
+        return false;
+    }
+
+    public function getInputFile()
+    {
+        return $this->file;
+    }
+
     public function __construct($file, $pattern, $tmp, $alias = '')
     {
         if (!is_file($file)) {
@@ -106,78 +130,6 @@ class Provider
         $this->generate();
     }
 
-    protected function eval_variables($value, Array $default)
-    {
-        foreach ((array)$value as $id => $val) {
-            preg_match_all("/%([a-z_][a-z_0-9]*)%/i", $val, $parts);
-            if (!empty($parts[1])) {
-                $rvalue = $val;
-                foreach ($parts[1] as $v) {
-                    if (array_key_exists($v, $default)) {
-                        $rvalue = str_replace("%$v%", $default[$v], $rvalue);
-                    } else {
-                        throw new \RuntimeException("Cannot find variable %$v%");
-                    }
-                }
-                if (is_scalar($value)) {
-                    $value = $rvalue;
-                } else {
-                    $value[$id] = $rvalue;
-                }
-            }
-        }
-        return $value;
-    }
-
-
-    protected function validate_files($values, $type, $property)
-    {
-        $values = (Array)$values;
-        $base   = dirname($this->file);
-        foreach ($values as $id => $path) {
-            if ($path[0] != '/') {
-                // relative path
-                $path = $base . DIRECTORY_SEPARATOR . $path;
-            }
-            if (preg_match('/\*/', $path)) {
-                $paths = 
-                $values[$id] = array_filter(glob($path),  'is_' . $type);
-            } else {
-                $values[$id] = array($path);
-            }
-        }
-
-        if (empty($values)) {
-            return array();
-        }
-
-        $values = call_user_func_array('array_merge', $values);
-
-        $paths = array();
-        foreach ($values as $id => $realpath) {
-            $paths[] = $this->validate_file($realpath, $type, $property . "." . $id);
-        }
-        return $paths;
-    }
-
-    protected function validate_file($value, $type, $property)
-    {
-        $realpath = $value;
-        if ($realpath[0] != '/') {
-            // relative path
-            $realpath = dirname($this->file) . DIRECTORY_SEPARATOR . $realpath;
-        }
-        $realpath = realpath($realpath);
-        if (empty($realpath)) {
-            throw new \RuntimeException("{$property}: Cannot find {$value} (relative to {$this->file})");
-        }
-        $check = "is_{$type}";
-        if (!$check($realpath)) {
-            throw new \RuntimeException("{$property}: {$realpath} is not a {$type}");
-        }
-        return $realpath;
-    }
-
     protected function generate()
     {
         $parser = new Parser;
@@ -201,131 +153,24 @@ class Provider
         $names  = array();
         $switch = array();
 
-        $services = $annotations->get('Service');
         $default  = array();
+        $dirs     = array();
+
         foreach ($config as $key => $value) {
             if (is_scalar($value)) {
                 $default[$key] = $value;
             }
         }
 
-        if (!empty($config['service-provider']['path'])) {
-            $value =  $this->eval_variables($config['service-provider']['path'], $default);
-            $dirs = $this->validate_files($value, 'readable', 'path');
-            $rebuild = false;
-            foreach ($dirs as $dir) {
-                if (!in_array($dir, $this->files)) {
-                    $this->files[] = $dir;
-                    $rebuild = true;
-                }
-            }
-            if ($rebuild) {
-                return $this->generate();
-            }
+        $services = new Services($this, $config, $annotations);
+        $events   = new Events($this, $config, $annotations);
+
+        if ($services->isExtensible()) {
+            return $this->generate();
         }
 
-        foreach($services as $object) {
-            $files[] = $object['file'];
-            foreach ($object as $annotation) {
-                if ($annotation['method'] !== 'Service') {
-                    continue;
-                }
-                $args = $annotation['args'];
-                foreach ($parse as $pos => $_name) {
-                    $$_name = !empty($args[$_name]) ? $args[$_name] : (!empty($args[$pos]) ? $args[$pos] : NULL);
-                }
-
-                if (empty($name)) {
-                    throw new \RuntimeException("Missing service name in annotation");
-                }
-
-                if (empty($config[$name])) {
-                    $config[$name] = array();
-                }
-
-                $params    = array_merge($default, $config[$name]);
-                $has_value = !empty($config[$name]);
-
-                foreach ((array)$definition as $property => $def) {
-                    if (!array_key_exists($property, $params)) {
-                        if (array_key_exists('default', $def)) {
-                            $params[$property] = $def['default'];
-                        } else if ($has_value) {
-                            throw new \Exception("Missing configuration {$property} for service {$name}");
-                        } else {
-                            break;
-                        }
-                    }
-
-                    $value =  $this->eval_variables($params[$property], $default);
-
-                    if (!empty($def['type'])) {
-                        switch ($def['type']) {
-                        case 'integer':
-                        case 'string':
-                        case 'numeric':
-                        case 'float':
-                        case 'array':
-                            $check = "is_{$def['type']}";
-                            if (!$check($value)) {
-                                throw new \Exception("{$property} should be {$def['type']}");
-                            }
-                            break;
-                        case 'dir':
-                        case 'file':
-                        case 'path':
-                            $type = $def['type'];
-                            $type = $type == 'path' ? 'readable' : $type;
-                            $params[$property] = $this->validate_file($value, $def['type'], $property);
-                            break;
-                        case 'array_dir':
-                        case 'array_file':
-                        case 'array_path':
-                            $type = substr($def['type'], 6);
-                            $type = $type == 'path' ? 'readable' : $type;
-                            $params[$property] = $this->validate_files($value, $type, $property);
-                            break;
-                        case 'service':
-                            if (!($value instanceof Compiler\ServiceCall)) {
-                                throw new \Exception("{$property} should be any service");
-                            }
-                            break;
-                        default:
-                            if ($def['type'][0] == '&') {
-                                $service = substr($def['type'], 1);
-                                if (!($value instanceof Compiler\ServiceCall) || strcasecmp($value->name, $service) !== 0) {
-                                    throw new \Exception("{$property} should be $service service");
-                                }
-                            }
-                        } 
-                    }
-                }
-
-
-                if (!is_array($definition)) {
-                    if (!empty($definition)) {
-                        throw new \RuntimeException("Invalid service configuration in annotation");
-                    }
-                    $definition = array();
-                }
-
-                $file   = Path::getRelative($object['file'], $this->tmp);
-                $names  = array($name);
-                $shared = !empty($args[2]['shared']);
-                $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition', 'shared');
-            }
-        }
-
-        foreach ($config as $name => $type) {
-            if ($type instanceof Compiler\ServiceCall && !empty($switch[$type->name])) {
-                $switch[$type->name]['names'][] = $name;
-            }
-        }
-
-        $dirs = array();
-        foreach ($files as $file) {
-            $dirs[] = dirname($file);
-        }
+        $events = $events->main($default);
+        list($switch, $names) = $services->main($default);
 
         foreach (array_diff(array_keys($config), array_keys($switch)) as $key) {
             $default[$key] = $config[$key];
@@ -336,7 +181,7 @@ class Provider
         $self  = $this;
         $alias = $this->alias;
         $code  = Template\Templates::get('services')
-            ->render(compact('switch', 'ns', 'self', 'alias', 'prod', 'default'), true);
+            ->render(compact('switch', 'ns', 'self', 'alias', 'prod', 'default', 'events'), true);
 
         File::write($this->tmp, FixCode::fix($code));
 
@@ -349,7 +194,7 @@ class Provider
             }
             $ns   = __NAMESPACE__ . '\Generated\Stage_' . uniqid(true);
             $code = Template\Templates::get('services')
-                ->render(compact('switch', 'ns', 'self', 'prod', 'default'), true);
+                ->render(compact('switch', 'ns', 'self', 'prod', 'default', 'events'), true);
 
             self::$NS[ $this->ns ] = $ns;
             $this->fnc     = $ns . '\get_service';
