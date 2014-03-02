@@ -111,7 +111,7 @@ class SimpleTest extends \phpunit_framework_testcase
 
         $events = getService()->get('event_manager');
         $e = $events->trigger('foo.bar', array('this' => $this));
-        $this->assertEquals($this->x, 3);
+        $this->assertEquals($this->x, array(1,2));
         $this->assertEquals(2, $e->getCalls());
     }
 }

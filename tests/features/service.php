@@ -6,7 +6,7 @@ namespace something;
  */
 function on_foo_bar_2($event) {
     $args = $event->getArguments();
-    $args['this']->x = 2;
+    $args['this']->x = array(1);
 }
 
 /**
@@ -14,7 +14,7 @@ function on_foo_bar_2($event) {
  */
 function on_foo_bar($event) {
     $args = $event->getArguments();
-    $args['this']->x += 1;
+    $args['this']->x[] = 2;
 }
 
 /**
