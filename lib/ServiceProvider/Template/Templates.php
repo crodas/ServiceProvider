@@ -116,7 +116,7 @@ namespace {
                         echo ";\n";
                     }
                 }
-                echo "\n        public static function get(\$service, \$context = null)\n        {\n            return f\\get_service(\$service, \$context);\n        }\n\n";
+                echo "\n        public static function get(\$service, \$context = null)\n        {\n            return f\\get_service(\$service, \$context);\n        }\n\n        public static function event_manager()\n        {\n            return f\\get_service('event_manager');\n        }\n\n";
                 foreach($switch as $service) {
                     foreach($service['names'] as $name) {
                         if (preg_match("/^[a-z][a-z0-9_]*$/", $name)) {
