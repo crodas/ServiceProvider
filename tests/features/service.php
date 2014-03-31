@@ -23,7 +23,8 @@ function on_foo_bar($event) {
  *      xx: {type: numeric, default: 5.1}
  *  })
  */
-function foobar($config, $context) 
+function foobar($config, $context, $callback) 
 {
+    $config['callback'] = $callback;
     return $config;
 }

@@ -87,6 +87,11 @@ namespace
             return f\get_service($service, $context);
         }
 
+        public static function event_manager()
+        {
+            return f\get_service('event_manager');
+        }
+
         @foreach ($switch as $service)
             @foreach ($service['names'] as $name)
                 @if (preg_match("/^[a-z][a-z0-9_]*$/", $name))

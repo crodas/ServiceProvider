@@ -107,6 +107,7 @@ class SimpleTest extends \phpunit_framework_testcase
 
         $service = getService()->get('barfoo', $this);
         $this->assertTrue(is_array($service));
+        $this->assertTrue(is_callable($service['callback']));
         $this->assertEquals($service['barfoo'], $service1);
 
         $events = getService()->get('event_manager');
