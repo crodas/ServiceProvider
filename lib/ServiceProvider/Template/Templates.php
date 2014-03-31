@@ -169,14 +169,14 @@ namespace {
                 var_export($service['object']['function']);
                 echo ")) {\n        require __DIR__ . ";
                 var_export($service['file']);
-                echo ";\n    }\n    \$return = \\" . ($service['object']['function']) . "(\$config, \$context);\n";
+                echo ";\n    }\n    \$return = \\" . ($service['object']['function']) . "(\$config, \$context, __FUNCTION__);\n";
             }
             else {
                 echo "    if (!class_exists(";
                 var_export($service['object']['class']);
                 echo ", false)) {\n        require __DIR__ . ";
                 var_export($service['file']);
-                echo ";\n    }\n    \$object = new \\" . ($service['object']['class']) . ";\n    \$return = \$object->" . ($service['object']['function']) . "(\$config, \$context);\n";
+                echo ";\n    }\n    \$object = new \\" . ($service['object']['class']) . ";\n    \$return = \$object->" . ($service['object']['function']) . "(\$config, \$context, __FUNCTION__);\n";
             }
             echo "\n";
             if (!empty($service['shared'])) {
