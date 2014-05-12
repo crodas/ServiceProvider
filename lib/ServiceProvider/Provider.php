@@ -41,8 +41,8 @@ use Notoj\File as AnnotationFile;
 use Notoj\Annotations;
 use Artifex;
 use WatchFiles\Watch;
-use crodas\Path;
-use crodas\File;
+use crodas\FileUtil\Path;
+use crodas\FileUtil\File;
 use crodas\SimpleView\FixCode;
 
 class Provider

@@ -6,18 +6,17 @@
         "symfony/yaml": "*",
         "crodas/watch-files": "~0.1",
         "seld/jsonlint": "*",
-        "crodas/path": "~0.1",
+        "crodas/file-util": "~0.1",
         "crodas/simple-view-engine": "~0.1"
     },
     "license": "BSD-4-Clause",
-    "version": "v0.1.15",
+    "version": "v0.1.16",
     "authors": [
         {
             "name": "César D. Rodas",
             "email": "crodas@php.net"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
             "ServiceProvider": "lib/"
