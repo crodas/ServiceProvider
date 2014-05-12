@@ -6,7 +6,7 @@
         "symfony/yaml": "*",
         "crodas/watch-files": "~0.1",
         "seld/jsonlint": "*",
-        "crodas/path": "~0.1",
+        "crodas/file-util": "~0.1",
         "crodas/simple-view-engine": "~0.1"
     },
     "license": "BSD-4-Clause",
@@ -17,7 +17,6 @@
             "email": "crodas@php.net"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
             "ServiceProvider": "lib/"
