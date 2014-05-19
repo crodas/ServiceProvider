@@ -44,16 +44,16 @@ trait EventEmitter
 {
     static protected $events = [];
 
-    protected static function trigger($event, Array $args = array())
+    protected static function trigger($name, Array $args = array())
     {
-        if (empty(self::$events[$event])) {
+        if (empty(self::$events[$name])) {
             return 0;
         }
 
-        $event = new \ServiceProvider\Event($event, $args);
+        $event = new \ServiceProvider\Event($name, $args);
         $calls = 0;
 
-        foreach (self::$events[$event] as $handler) {
+        foreach (self::$events[$name] as $handler) {
             if (is_array($handler)) {
                 $handler[0]->$handler[1]($event);
             } else {
