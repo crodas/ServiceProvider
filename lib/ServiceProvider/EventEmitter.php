@@ -75,6 +75,6 @@ trait EventEmitter
             self::$events[$event] = [];
         }
 
-        self::$events[$event][] = $event;
+        self::$events[$event][] = $callback;
     }
 }
