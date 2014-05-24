@@ -53,7 +53,8 @@ class Provider
     protected $files;
     protected $ns;
     protected $pattern;
-    protected $func;
+    protected $fnc;
+    protected $dump;
     protected $is_prod;
     protected $alias;
 
@@ -95,11 +96,13 @@ class Provider
         $this->tmp     = $tmp;
         $this->alias   = $alias;
         $this->ns      = __NAMESPACE__ .'\\Generated\\Stage_' .sha1(realpath($file));
+        $this->dump    = $this->ns . '\\dump_configuration';
         $this->fnc     = $this->ns . '\\get_service';
         $this->is_prod = $this->ns . '\\is_production';
 
         if (isset(self::$NS[$this->ns])) {
             $this->fnc      = self::$NS[$this->ns] . '\\get_service';
+            $this->dump     = self::$NS[$this->ns] . '\\dump_configuration';
             $this->is_prod  = self::$NS[$this->ns] . '\\is_production';
         }
 
@@ -210,12 +213,29 @@ class Provider
 
     }
 
+    public function getRawConfiguration($config)
+    {
+        $str = var_export($config, true);
+        $str = preg_replace_callback('@[ \t\n]+ServiceProvider\\\\Compiler\\\\ServiceCall[^>]+?\> +([^,]+?)[^\)]+\)\)@smU', function($args) {
+            return var_export('%' . trim($args[1], "'\"") . '%', true);
+        }, $str);
+        $str = str_replace('%{dir}', "' . __DIR__ . '", $str);
+        return $str;
+    }
+
+
     public function getConfiguration($config)
     {
         $str = var_export($config, true);
         $str = preg_replace('@[ \t\n]+ServiceProvider\\\\Compiler\\\\ServiceCall[^>]+?\> +([^,]+?)[^\)]+\)\)@smU', ' get_service(\1, $context)', $str);
         $str = str_replace('%{dir}', "' . __DIR__ . '", $str);
         return $str;
+    }
+
+    public function dump()
+    {
+        $fnc = $this->dump;
+        return $fnc();
     }
 
     public function get($name, $context = NULL)

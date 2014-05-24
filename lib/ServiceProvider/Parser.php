@@ -75,7 +75,7 @@ class Parser
     protected function processVariables(Array &$config)
     {
         foreach ($config as $key => $value) {
-            if (is_string($value) && $value[0] == substr($value, -1) && $value[0] == '%') {
+            if (is_string($value) && !empty($value) && $value[0] == substr($value, -1) && $value[0] == '%') {
                 $config[$key] = $this->getValue(substr($value, 1, -1));
             } else if (is_array($value)) {
                 $this->processVariables($config[$key]);

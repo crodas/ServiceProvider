@@ -71,10 +71,14 @@ namespace {
             }
             echo "<?php\n\nnamespace " . ($ns) . "\n{\n    class EventManager\n    {\n        public function trigger(\$name, Array \$args = array())\n        {\n            \$event = new \\ServiceProvider\\Event(\$name, \$args);\n\n            switch (strtolower(\$name)) {\n";
             foreach($events as $name => $handlers) {
+                $this->context['name'] = $name;
+                $this->context['handlers'] = $handlers;
                 echo "            case ";
                 var_export($name);
                 echo ":\n";
                 foreach($handlers as $i => $handler) {
+                    $this->context['i'] = $i;
+                    $this->context['handler'] = $handler;
                     if ($handler->isFunction()) {
                         echo "                        if (!is_callable(";
                         var_export($handler['function']);
@@ -93,11 +97,24 @@ namespace {
                 }
                 echo "                \$event->setCalls(" . ($i+1) . ");\n                break;\n\n";
             }
-            echo "            }\n\n            return \$event;\n        }\n    }\n\n    function get_service(\$service, \$context = NULL)\n    {\n        static \$services = array();\n\n        switch (\$service) {\n        case 'event_manager':\n            if (!empty(\$services['event_manager'])) {\n                return \$services['event_manager'];\n            }\n            \$return = new EventManager;\n            \$services['event_manager'] = \$return;\n            break;\n";
+            echo "            }\n\n            return \$event;\n        }\n    }\n\n    function dump_configuration()\n    {\n        return array(\n";
             foreach($switch as $service) {
+                $this->context['service'] = $service;
+                foreach($service['names'] as $name) {
+                    $this->context['name'] = $name;
+                    echo "                    ";
+                    var_export($name);
+                    echo " => " . ($self->getRawConfiguration($service['params'])) . ",\n";
+                }
+            }
+            echo "        );\n    }\n\n    function get_service(\$service, \$context = NULL)\n    {\n        static \$services = array();\n\n        switch (\$service) {\n        case 'event_manager':\n            if (!empty(\$services['event_manager'])) {\n                return \$services['event_manager'];\n            }\n            \$return = new EventManager;\n            \$services['event_manager'] = \$return;\n            break;\n";
+            foreach($switch as $service) {
+                $this->context['service'] = $service;
                 ServiceProvider\Template\Templates::exec('service', compact('service'), $this->context);
             }
             foreach($default as $key => $value) {
+                $this->context['key'] = $key;
+                $this->context['value'] = $value;
                 if (!$value instanceof ServiceProvider\Compiler\ServiceCall) {
                     echo "        case ";
                     var_export($key);
@@ -110,6 +127,8 @@ namespace {
             if (!empty($alias)) {
                 echo "namespace\n{\n    use " . ($ns) . " as f;\n\n    class " . ($alias) . "\n    {\n";
                 foreach($default as $key => $value) {
+                    $this->context['key'] = $key;
+                    $this->context['value'] = $value;
                     if (is_scalar($value)) {
                         echo "        static \$" . ($key) . " = ";
                         var_export($value);
@@ -118,7 +137,9 @@ namespace {
                 }
                 echo "\n        public static function get(\$service, \$context = null)\n        {\n            return f\\get_service(\$service, \$context);\n        }\n\n        public static function event_manager()\n        {\n            return f\\get_service('event_manager');\n        }\n\n";
                 foreach($switch as $service) {
+                    $this->context['service'] = $service;
                     foreach($service['names'] as $name) {
+                        $this->context['name'] = $name;
                         if (preg_match("/^[a-z][a-z0-9_]*$/", $name)) {
                             echo "        public static function " . ($name) . "(\$context = null)\n        {\n            return f\\get_service(";
                             var_export($name);
@@ -151,6 +172,7 @@ namespace {
                 ob_start();
             }
             foreach($service['names'] as $name) {
+                $this->context['name'] = $name;
                 echo "case ";
                 var_export($name);
                 echo ":\n";
