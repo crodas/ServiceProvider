@@ -39,6 +39,17 @@ namespace {{$ns}}
         }
     }
 
+    function dump_configuration()
+    {
+        return array(
+            @foreach ($switch as $service)
+                @foreach($service['names'] as $name)
+                    {{@$name}} => {{ $self->getRawConfiguration($service['params']) }},
+                @end
+            @end
+        );
+    }
+
     function get_service($service, $context = NULL)
     {
         static $services = array();

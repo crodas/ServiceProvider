@@ -43,6 +43,8 @@ class SimpleTest extends \phpunit_framework_testcase
             $foo = $services->get('foo');
             $this->assertTrue($foo['done']);
         }
+
+        $this->assertTrue(is_array($services->dump()));
     }
 
     /**
