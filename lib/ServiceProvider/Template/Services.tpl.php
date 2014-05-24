@@ -42,9 +42,23 @@ namespace {{$ns}}
     function dump_configuration()
     {
         return array(
+            @foreach ($default as $key => $value)
+                @if (!($value instanceof ServiceProvider\Compiler\ServiceCall))
+                {{@$key}} =>  {{$self->getRawConfiguration($value)}},
+                @end
+            @end
             @foreach ($switch as $service)
+                @if (!$service['has_value']) 
+                    @continue
+                @end
+                @set($rname, null)
                 @foreach($service['names'] as $name)
-                    {{@$name}} => {{ $self->getRawConfiguration($service['params']) }},
+                    @if (empty($rname)) 
+                        {{@$name}} => {{ $self->getRawConfiguration($service['params']) }},
+                        @set($rname, $name)
+                    @else 
+                        {{@$name}} => {{@'%' . $rname . '%'}},
+                    @end
                 @end
             @end
         );
@@ -93,6 +107,11 @@ namespace
             @end
         @end
 
+        public static function dumpConfig()
+        {
+            return f\dump_configuration();
+        }
+
         public static function get($service, $context = null)
         {
             return f\get_service($service, $context);
@@ -105,7 +124,7 @@ namespace
 
         @foreach ($switch as $service)
             @foreach ($service['names'] as $name)
-                @if (preg_match("/^[a-z][a-z0-9_]*$/", $name))
+                @if (preg_match("/^[a-z][a-z0-9_]*$/", $name) && $name != 'dumpConfig')
         public static function {{$name}}($context = null)
         {
             return f\get_service({{@$name}}, $context);
