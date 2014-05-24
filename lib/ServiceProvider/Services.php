@@ -157,7 +157,7 @@ class Services extends Action
                 $file   = Path::getRelative($object['file'], $this->provider->getTemp());
                 $names  = array($name);
                 $shared = !empty($args[2]['shared']);
-                $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition', 'shared');
+                $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition', 'shared', 'has_value');
             }
         }
 
