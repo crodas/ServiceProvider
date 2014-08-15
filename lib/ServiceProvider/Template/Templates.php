@@ -154,7 +154,7 @@ namespace {
                 foreach($default as $key => $value) {
                     $this->context['key'] = $key;
                     $this->context['value'] = $value;
-                    if (!preg_match("/^[a-z][a-z0-9_]$/i", $key)) {
+                    if (!preg_match("/^[a-z][a-z0-9_]*$/i", $key)) {
                         continue;
                     }
                     if (is_scalar($value)) {
