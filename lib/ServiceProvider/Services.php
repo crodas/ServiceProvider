@@ -43,7 +43,7 @@ class Services extends Action
 {
     protected $files = array();
 
-    public function safeArray(Array $array)
+    public static function safeArray(Array $array)
     {
         $arr = array();
         foreach ($array as $key => $value) {
