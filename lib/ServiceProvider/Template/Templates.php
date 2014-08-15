@@ -154,11 +154,20 @@ namespace {
                 foreach($default as $key => $value) {
                     $this->context['key'] = $key;
                     $this->context['value'] = $value;
+                    if (!preg_match("/^[a-z][a-z0-9_]$/i", $key)) {
+                        continue;
+                    }
                     if (is_scalar($value)) {
                         echo "        static \$" . ($key) . " = ";
                         var_export($value);
                         echo ";\n";
                     }
+                    else if (is_array($value)) {
+                        echo "        static \$" . ($key) . " = ";
+                        var_export(ServiceProvider\Services::safeArray($value));
+                        echo ";\n";
+                    }
+
                 }
                 echo "\n        public static function dumpConfig()\n        {\n            return f\\dump_configuration();\n        }\n\n        public static function get(\$service, \$context = null)\n        {\n            return f\\get_service(\$service, \$context);\n        }\n\n        public static function event_manager()\n        {\n            return f\\get_service('event_manager');\n        }\n\n";
                 foreach($switch as $service) {

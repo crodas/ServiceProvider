@@ -43,6 +43,19 @@ class Services extends Action
 {
     protected $files = array();
 
+    public function safeArray(Array $array)
+    {
+        $arr = array();
+        foreach ($array as $key => $value) {
+            if (is_scalar($value)) {
+                $arr[$key] = $value;
+            } else if (is_array($value)) {
+                $arr[$key] = self::safeArray($value);
+            }
+        }
+        return $arr;
+    }
+
     public function isExtensible()
     {
         if (empty($this->config['service-provider']['path'])) {

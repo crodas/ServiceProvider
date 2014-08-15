@@ -102,8 +102,13 @@ namespace
     class {{$alias}}
     {
         @foreach ($default as $key => $value)
+            @if (!preg_match("/^[a-z][a-z0-9_]$/i", $key))
+                @continue
+            @end
             @if (is_scalar($value))
         static ${{$key}} = {{@$value}};
+            @elif (is_array($value))
+        static ${{$key}} = {{@ServiceProvider\Services::safeArray($value)}};
             @end
         @end
 
