@@ -82,9 +82,12 @@ abstract class Action
     protected function validate_file($value, $type, $property)
     {
         $realpath = $value;
+        $pwd = dirname($this->provider->getInputFile());
+        $realpath = str_replace("%{dir}", $pwd, $realpath);
+
         if ($realpath[0] != '/') {
-            // relative path
-            $realpath = dirname($this->provider->getInputFile()) . DIRECTORY_SEPARATOR . $realpath;
+            // RELAtive path
+            $realpath = $pwd . DIRECTORY_SEPARATOR . $realpath;
         }
         $realpath = realpath($realpath);
         if (empty($realpath)) {
