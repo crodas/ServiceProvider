@@ -213,23 +213,40 @@ class Provider
 
     }
 
+    protected function getConfigArray($config, $raw = false)
+    {
+        if (!is_array($config)) {
+            $pwd  = dirname($this->getInputFile());
+            $config = str_replace("%{dir}", $pwd, $config);
+            return var_export($config, true);
+        }
+
+        $array = "array(";
+        foreach ($config as $key => $value) {
+            $array .= var_export($key, true) . " => ";
+            if ($value instanceof Compiler\ServiceCall) {
+                if ($raw) {
+                    $array .= var_export("%" . $value->name . "%", true) . ",\n";
+                } else {
+                    $array .= "get_service(" . var_export($value->name, true) . ", \$context),\n";
+                }
+            } else {
+                $array .= $this->getConfigArray($value) . ",\n";
+            }
+        }
+
+        return $array . ")";
+    }
+
     public function getRawConfiguration($config)
     {
-        $str = var_export($config, true);
-        $str = preg_replace_callback('@[ \t\n]+ServiceProvider\\\\Compiler\\\\ServiceCall[^>]+?\> +([^,]+?)[^\)]+\)\)@smU', function($args) {
-            return var_export('%' . trim($args[1], "'\"") . '%', true);
-        }, $str);
-        $str = str_replace('%{dir}', "' . __DIR__ . '", $str);
-        return $str;
+        return $this->getConfigArray($config, true);
     }
 
 
     public function getConfiguration($config)
     {
-        $str = var_export($config, true);
-        $str = preg_replace('@[ \t\n]+ServiceProvider\\\\Compiler\\\\ServiceCall[^>]+?\> +([^,]+?)[^\)]+\)\)@smU', ' get_service(\1, $context)', $str);
-        $str = str_replace('%{dir}', "' . __DIR__ . '", $str);
-        return $str;
+        return $this->getConfigArray($config);
     }
 
     public function dump()
