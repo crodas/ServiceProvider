@@ -137,7 +137,7 @@ class Provider
     {
         $parser = new Parser;
         $parser->parse($this->file)->process();
-        $config = $parser->getConfig();
+        $config = $parser->getConfig($this);
         $files  = $parser->getFiles(); 
 
         $annotations = new Annotations;
@@ -216,8 +216,6 @@ class Provider
     protected function getConfigArray($config, $raw = false)
     {
         if (!is_array($config)) {
-            $pwd  = dirname($this->getInputFile());
-            $config = str_replace("%{dir}", $pwd, $config);
             return var_export($config, true);
         }
 

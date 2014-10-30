@@ -146,8 +146,32 @@ class Parser
         return $this;
     }
 
-    public function getConfig()
+    protected function doEval(Provider $provider, $value)
     {
-        return $this->config;
+        $pwd = dirname($provider->getinputfile());
+        $value = str_replace("%{dir}", $pwd, $value);
+        return $value;
+    }
+
+    protected function evalConfig($config, Provider $provider)
+    {
+        if (is_string($config)) {
+            return $this->doEval($provider, $value);
+        }
+        foreach ($config as $key => $value) {
+            if (is_string($value)) {
+                $value = $this->doEval($provider, $value);
+            } else if (is_array($value)) {
+                $value = $this->evalConfig($value, $provider);
+            }
+            $config[$key] = $value;
+        }
+
+        return $config;
+    }
+
+    public function getConfig(Provider $provider)
+    {
+        return $this->evalConfig($this->config, $provider);
     }
 }
