@@ -167,6 +167,39 @@ class Services extends Action
                     $definition = array();
                 }
 
+                foreach ($annotations->get('PrepareService') as $zann) {
+                    $isMethod = $zann->isMethod();
+                    $isFunc   = $zann->isFunction();
+                    foreach ($zann->get('PrepareService') as $zobject) {
+                        if (current((array)$zobject['args']) !== $name || (!$isFunc && !$isMethod)) {
+                            continue;
+                        }
+                        if (
+                            ($isFunc && !is_callable($zann['function'])) ||
+                            ($isMethod && !class_exists($zann['class'], false))
+                        ) {
+                            require $zann['file'];
+                        }
+
+                        if ($isFunc) {
+                            $zparams = $zann['function']($params);
+                        } else {
+                            $class = $zann['class'];
+                            $method = $zann['function'];
+                            if (in_array('static', $zann['visibility'])) {
+                                $zparams = $class::$method($params);
+                            } else {
+                                $obj = new $class;
+                                $zparams = $obj->$method($params);
+                            }
+                        }
+
+                        if (is_array($zparams)) {
+                            $params = $zparams;
+                        }
+                    }
+                }
+
                 $file   = Path::getRelative($object['file'], $this->provider->getTemp());
                 $names  = array($name);
                 $shared = !empty($args[2]['shared']);
