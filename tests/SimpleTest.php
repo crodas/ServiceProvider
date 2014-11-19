@@ -42,6 +42,9 @@ class SimpleTest extends \phpunit_framework_testcase
         if ($zfile == 'foo.yml') {
             $foo = $services->get('foo');
             $this->assertTrue($foo['done']);
+            $this->assertTrue(!empty($foo['zargs_1']));
+            $this->assertTrue(!empty($foo['zargs_2']));
+            $this->assertTrue(!empty($foo['zargs_3']));
         }
 
         $this->assertTrue(is_array($services->dump()));
