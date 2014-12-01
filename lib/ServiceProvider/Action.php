@@ -103,6 +103,10 @@ abstract class Action
     protected function eval_variables($value, Array $default)
     {
         foreach ((array)$value as $id => $val) {
+            if (!is_scalar($val)) {
+                $value[$id] = $this->eval_variables($val, $default);
+                continue;
+            }
             preg_match_all("/%([a-z_][a-z_0-9]*)%/i", $val, $parts);
             if (!empty($parts[1])) {
                 $rvalue = $val;
