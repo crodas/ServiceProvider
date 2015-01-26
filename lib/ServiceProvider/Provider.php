@@ -51,10 +51,8 @@ class Provider
     protected $tmp;
     protected $tmpCache;
     protected $files;
-    protected $ns;
+    protected $object;
     protected $pattern;
-    protected $fnc;
-    protected $dump;
     protected $is_prod;
     protected $alias;
 
@@ -84,6 +82,18 @@ class Provider
         return $this->file;
     }
 
+    protected function doRequire($file, $force = false)
+    {
+        if (is_file($file)) {
+            if (empty(self::$NS[$file]) || $force) {
+                self::$NS[$file] = require $file;
+            }
+            return self::$NS[$file];
+        }
+
+        return null;
+    }
+
     public function __construct($file, $pattern, $tmp, $alias = '')
     {
         if (!is_file($file)) {
@@ -95,30 +105,17 @@ class Provider
         $this->file    = $file;
         $this->tmp     = $tmp;
         $this->alias   = $alias;
-        $this->ns      = __NAMESPACE__ .'\\Generated\\Stage_' .sha1(realpath($file));
-        $this->dump    = $this->ns . '\\dump_configuration';
-        $this->fnc     = $this->ns . '\\get_service';
-        $this->is_prod = $this->ns . '\\is_production';
 
-        if (isset(self::$NS[$this->ns])) {
-            $this->fnc      = self::$NS[$this->ns] . '\\get_service';
-            $this->dump     = self::$NS[$this->ns] . '\\dump_configuration';
-            $this->is_prod  = self::$NS[$this->ns] . '\\is_production';
+        $this->object = $this->doRequire($tmp);
+
+        if (is_array($this->object) && false) {
+            return;
         }
 
-        if (is_file($tmp)) {
-            require_once $tmp;
-            $prod = $this->is_prod;
-            if (is_callable($this->is_prod) && $prod()) {
-                /** we are in production mode :-) */
-                return;
-            }
-        }
-        
         $this->tmpCache = new Watch(substr($tmp, 0, -4)  . '.cache.php');
         $this->tmpCache->watchGlob($pattern);
 
-        if (!$this->tmpCache->hasChanged() && is_callable($this->fnc)) {
+        if (!$this->tmpCache->hasChanged() && is_array($this->object)) {
             return;
         }
         $this->tmpCache->watch();
@@ -138,19 +135,10 @@ class Provider
         $parser = new Parser;
         $parser->parse($this->file)->process();
         $config = $parser->getConfig($this);
-        $files  = $parser->getFiles(); 
+        $files  = $parser->getFiles();
+        $dirs   = array();
 
-        $annotations = new Annotations;
-        foreach ($this->files as $input) {
-            if (is_dir($input)) {
-                $ann  = new AnnotationDir($input);
-            } else if (is_file($input)) {
-                $ann  = new AnnotationFile($input);
-            } else {
-                throw new \Exception("Cannot read {$input}");
-            }
-            $ann->getAnnotations($annotations);
-        }
+        $annotations = new \Notoj\Filesystem($this->files);
 
         $parse = array('name', 'definition', 'data');
         $names  = array();
@@ -180,32 +168,14 @@ class Provider
         }
 
         $prod  = empty($default['devel']);
-        $ns    = $this->ns;
         $self  = $this;
         $alias = $this->alias;
         $code  = Template\Templates::get('services')
-            ->render(compact('switch', 'ns', 'self', 'alias', 'prod', 'default', 'events'), true);
+            ->render(compact('switch', 'self', 'alias', 'prod', 'default', 'events'), true);
 
         File::write($this->tmp, FixCode::fix($code));
 
-        if (is_callable($this->fnc)) {
-            // PHP is a bitch, it won't let use re-define
-            // a function, so we create the function inside another
-            // namespace.
-            foreach ($switch as &$service) {
-                $service['file'] = Path::getRelative($service['object']['file'], __FILE__);
-            }
-            $ns   = __NAMESPACE__ . '\Generated\Stage_' . uniqid(true);
-            $code = Template\Templates::get('services')
-                ->render(compact('switch', 'ns', 'self', 'prod', 'default', 'events'), true);
-
-            self::$NS[ $this->ns ] = $ns;
-            $this->fnc     = $ns . '\get_service';
-            $this->is_prod = $ns . '\is_production'; 
-            eval(substr($code, 5));
-        } else {
-            require $this->tmp;
-        }
+        $this->object = $this->doRequire($this->tmp, true);
 
         $this->tmpCache->watchFiles($files)
             ->watchDirs($dirs)
@@ -226,7 +196,7 @@ class Provider
                 if ($raw) {
                     $array .= var_export("%" . $value->name . "%", true) . ",\n";
                 } else {
-                    $array .= "get_service(" . var_export($value->name, true) . ", \$context),\n";
+                    $array .= "\$this->get_service(" . var_export($value->name, true) . ", \$context),\n";
                 }
             } else {
                 $array .= $this->getConfigArray($value) . ",\n";
@@ -249,13 +219,11 @@ class Provider
 
     public function dump()
     {
-        $fnc = $this->dump;
-        return $fnc();
+        return $this->object['services']->dump_configuration();
     }
 
     public function get($name, $context = NULL)
     {
-        $fnc = $this->fnc;
-        return $fnc($name, $context);
+        return $this->object['services']->get_service($name, $context);
     }
 }
