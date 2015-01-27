@@ -118,12 +118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/crodas/Notoj.git",
-                "reference": "d8609638f1f6b60de4dd7365fc644546c9be6bdd"
+                "reference": "91db3ada034e2fd81fbc1064ccb32f8c7ae22220"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/crodas/Notoj/zipball/d8609638f1f6b60de4dd7365fc644546c9be6bdd",
-                "reference": "d8609638f1f6b60de4dd7365fc644546c9be6bdd",
+                "url": "https://api.github.com/repos/crodas/Notoj/zipball/91db3ada034e2fd81fbc1064ccb32f8c7ae22220",
+                "reference": "91db3ada034e2fd81fbc1064ccb32f8c7ae22220",
                 "shasum": ""
             },
             "require": {
@@ -148,7 +148,7 @@
                 }
             ],
             "description": "Annotation parser. Uses reflection and provides cache out of the box.",
-            "time": "2015-01-26 20:34:16"
+            "time": "2015-01-27 00:00:10"
         },
         {
             "name": "crodas/simple-view-engine",
