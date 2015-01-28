@@ -41,19 +41,18 @@ class Events extends Action
     public function main(Array $default)
     {
         $annotations = $this->annotations;
-        $events      = $annotations->get('EventSubscriber');
+        $events      = $annotations->get('EventSubscriber', 'Callable');
 
         $all_events = array();
-        foreach ($events as $event) {
-            foreach ($event->get('EventSubscriber') as $ann) {
-                if (empty($ann['args'])) continue;
-                $name = current($ann['args']);
-                $pref = array_key_exists(1, $ann['args']) ? intval($ann['args'][1]) : 0;
-                if (empty($all_events[$name])) {
-                    $all_events[$name] = array();
-                }
-                $all_events[$name][] = array($pref, $event);
+        foreach ($events as $ann) {
+            $args = $ann->GetArgs();
+            if (empty($args)) continue;
+            $name = current($args);
+            $pref = array_key_exists(1, $args) ? intval($args[1]) : 0;
+            if (empty($all_events[$name])) {
+                $all_events[$name] = array();
             }
+            $all_events[$name][] = array($pref, $ann);
         }
 
         if (!empty($all_events)) {

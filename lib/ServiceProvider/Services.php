@@ -76,135 +76,130 @@ class Services extends Action
     public function main(Array $default)
     {
         $annotations = $this->annotations;
-        $services    = $annotations->get('Service');
         $parse       = array('name', 'definition', 'data');
         $names       = array();
         $switch      = array();
         $config      = $this->config;
 
-        foreach($services as $object) {
-            $this->provider->addFile($object['file']);
-            foreach ($object as $annotation) {
-                if ($annotation['method'] !== 'Service') {
+        foreach($annotations->get('Service', 'Callable') as $annotation) {
+            $this->provider->addFile($annotation->getFile());
+            $args = $annotation->GetArgs();
+            foreach ($parse as $pos => $_name) {
+                $$_name = !empty($args[$_name]) ? $args[$_name] : (!empty($args[$pos]) ? $args[$pos] : NULL);
+            }
+
+            if (empty($name)) {
+                throw new \RuntimeException("Missing service name in annotation");
+            }
+
+            if (empty($config[$name])) {
+                $config[$name] = array();
+            }
+
+            $params    = array_merge($default, $config[$name]);
+            $has_value = !empty($config[$name]);
+
+            foreach ((array)$definition as $property => $def) {
+                if (!array_key_exists($property, $params)) {
+                    if (array_key_exists('default', $def)) {
+                        $params[$property] = $def['default'];
+                    } else if ($has_value) {
+                        throw new \Exception("Missing configuration {$property} for service {$name}");
+                    } else {
+                        break;
+                    }
+                }
+
+                $value =  $this->eval_variables($params[$property], $default);
+
+                if (!empty($def['type'])) {
+                    switch ($def['type']) {
+                    case 'integer':
+                    case 'string':
+                    case 'numeric':
+                    case 'float':
+                    case 'array':
+                        $check = "is_{$def['type']}";
+                        if (!$check($value)) {
+                            throw new \Exception("{$property} should be {$def['type']}");
+                        }
+                        break;
+                    case 'dir':
+                    case 'file':
+                    case 'path':
+                        $type = $def['type'];
+                        $type = $type == 'path' ? 'readable' : $type;
+                        $params[$property] = $this->validate_file($value, $def['type'], $property);
+                        break;
+                    case 'array_dir':
+                    case 'array_file':
+                    case 'array_path':
+                        $type = substr($def['type'], 6);
+                        $type = $type == 'path' ? 'readable' : $type;
+                        $params[$property] = $this->validate_files($value, $type, $property);
+                        break;
+                    case 'service':
+                        if (!($value instanceof Compiler\ServiceCall)) {
+                            throw new \Exception("{$property} should be any service");
+                        }
+                        break;
+                    default:
+                        if ($def['type'][0] == '&') {
+                            $service = substr($def['type'], 1);
+                            if (!($value instanceof Compiler\ServiceCall) || strcasecmp($value->name, $service) !== 0) {
+                                throw new \Exception("{$property} should be $service service");
+                            }
+                        }
+                    } 
+                }
+            }
+
+
+            if (!is_array($definition)) {
+                if (!empty($definition)) {
+                    throw new \RuntimeException("Invalid service configuration in annotation");
+                }
+                $definition = array();
+            }
+
+            foreach ($annotations->get('PrepareService', 'Callable') as $zann) {
+                $args = $zann->GetArgs();
+                if (current($args) !== $name) {
                     continue;
                 }
-                $args = $annotation['args'];
-                foreach ($parse as $pos => $_name) {
-                    $$_name = !empty($args[$_name]) ? $args[$_name] : (!empty($args[$pos]) ? $args[$pos] : NULL);
+
+                $isFunc = $zann->getObject() instanceof \Notoj\Object\zFunction;
+                $zname  = $zann->getObject()->getName();
+                $isMethod = !$isFunc;
+                    
+                if (($isFunc && !is_callable($zname)) ||
+                    ($isMethod && !class_exists($zann->getObject()->getClass()->getName(), false))
+                ) {
+                    require $zann->getFile();
                 }
 
-                if (empty($name)) {
-                    throw new \RuntimeException("Missing service name in annotation");
-                }
-
-                if (empty($config[$name])) {
-                    $config[$name] = array();
-                }
-
-                $params    = array_merge($default, $config[$name]);
-                $has_value = !empty($config[$name]);
-
-                foreach ((array)$definition as $property => $def) {
-                    if (!array_key_exists($property, $params)) {
-                        if (array_key_exists('default', $def)) {
-                            $params[$property] = $def['default'];
-                        } else if ($has_value) {
-                            throw new \Exception("Missing configuration {$property} for service {$name}");
-                        } else {
-                            break;
-                        }
-                    }
-
-                    $value =  $this->eval_variables($params[$property], $default);
-
-                    if (!empty($def['type'])) {
-                        switch ($def['type']) {
-                        case 'integer':
-                        case 'string':
-                        case 'numeric':
-                        case 'float':
-                        case 'array':
-                            $check = "is_{$def['type']}";
-                            if (!$check($value)) {
-                                throw new \Exception("{$property} should be {$def['type']}");
-                            }
-                            break;
-                        case 'dir':
-                        case 'file':
-                        case 'path':
-                            $type = $def['type'];
-                            $type = $type == 'path' ? 'readable' : $type;
-                            $params[$property] = $this->validate_file($value, $def['type'], $property);
-                            break;
-                        case 'array_dir':
-                        case 'array_file':
-                        case 'array_path':
-                            $type = substr($def['type'], 6);
-                            $type = $type == 'path' ? 'readable' : $type;
-                            $params[$property] = $this->validate_files($value, $type, $property);
-                            break;
-                        case 'service':
-                            if (!($value instanceof Compiler\ServiceCall)) {
-                                throw new \Exception("{$property} should be any service");
-                            }
-                            break;
-                        default:
-                            if ($def['type'][0] == '&') {
-                                $service = substr($def['type'], 1);
-                                if (!($value instanceof Compiler\ServiceCall) || strcasecmp($value->name, $service) !== 0) {
-                                    throw new \Exception("{$property} should be $service service");
-                                }
-                            }
-                        } 
+                if ($isFunc) {
+                    $zparams = $zname($params);
+                } else {
+                    $class = $zann->getObject()->GetClass()->getName();
+                    if ($zann->getObject()->isStatic()) {
+                        $zparams = $class::$zname($params);
+                    } else {
+                        $obj = new $class;
+                        $zparams = $obj->$zname($params);
                     }
                 }
 
-
-                if (!is_array($definition)) {
-                    if (!empty($definition)) {
-                        throw new \RuntimeException("Invalid service configuration in annotation");
-                    }
-                    $definition = array();
+                if (is_array($zparams)) {
+                    $params = $zparams;
                 }
-
-                foreach ($annotations->get('PrepareService') as $zann) {
-                    $isMethod = $zann->isMethod();
-                    $isFunc   = $zann->isFunction();
-                    foreach ($zann->get('PrepareService') as $zobject) {
-                        if (current((array)$zobject['args']) !== $name || (!$isFunc && !$isMethod)) {
-                            continue;
-                        }
-                        if (
-                            ($isFunc && !is_callable($zann['function'])) ||
-                            ($isMethod && !class_exists($zann['class'], false))
-                        ) {
-                            require $zann['file'];
-                        }
-
-                        if ($isFunc) {
-                            $zparams = $zann['function']($params);
-                        } else {
-                            $class = $zann['class'];
-                            $method = $zann['function'];
-                            if (in_array('static', $zann['visibility'])) {
-                                $zparams = $class::$method($params);
-                            } else {
-                                $obj = new $class;
-                                $zparams = $obj->$method($params);
-                            }
-                        }
-
-                        if (is_array($zparams)) {
-                            $params = $zparams;
-                        }
-                    }
-                }
-
-                $file   = Path::getRelative($object['file'], $this->provider->getTemp());
-                $names  = array($name);
-                $shared = !empty($args[2]['shared']);
-                $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition', 'shared', 'has_value');
             }
+
+            $object = $annotation->getObject();
+            $file   = Path::getRelative($annotation->getFile(), $this->provider->getTemp());
+            $names  = array($name);
+            $shared = !empty($args[2]['shared']);
+            $switch[$name] = compact('names', 'params', 'data', 'object', 'file', 'definition', 'shared', 'has_value');
         }
 
         foreach ($config as $name => $type) {
