@@ -3,7 +3,7 @@
     "description": "Little configuration manager and dependency injection",
     "require": {
         "crodas/notoj": "dev-develop",
-        "symfony/yaml": "*",
+        "symfony/yaml": "~2.6",
         "crodas/watch-files": "~0.1",
         "seld/jsonlint": "*",
         "crodas/file-util": "~0.1",
