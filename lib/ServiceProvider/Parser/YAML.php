@@ -43,7 +43,10 @@ class YAML
 {
     public function parse($parser, $file)
     {
-        $data = sfYaml::parse($file);
+        if (!is_file($file) || !is_readable($file)) {
+            throw new \RuntimeException("Cannot read $file");
+        }
+        $data = sfYaml::parse(file_get_contents($file));
         if (!empty($data['include'])) {
             foreach ($data['include'] as $f) {
                 $parser->parse($f);
