@@ -2,7 +2,7 @@
     "name": "crodas/service-provider",
     "description": "Little configuration manager and dependency injection",
     "require": {
-        "crodas/notoj": "dev-develop",
+        "crodas/notoj": "^1.0",
         "symfony/yaml": "~2.6",
         "crodas/watch-files": "~0.1",
         "seld/jsonlint": "*",
