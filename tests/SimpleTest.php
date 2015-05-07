@@ -74,6 +74,10 @@ class SimpleTest extends \phpunit_framework_testcase
             getService()->get('barfoo', $this),
             getService()->get('barfoo', $this)
         );
+        $this->assertEquals(
+            getService()->get('barfoo', $this),
+            getService()->get('barfoo', $this)
+        );
     }
 
     public function testSharedServices()
@@ -81,6 +85,10 @@ class SimpleTest extends \phpunit_framework_testcase
         $this->assertEquals(
             getService()->get('foobar', $this),
             getService()->get('foobar', $this)
+        );
+        $this->assertEquals(
+            Service::foobar($this),
+            Service::foobar($this)
         );
     }
 
