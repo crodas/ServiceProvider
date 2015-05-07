@@ -8,9 +8,6 @@
 namespace {
 
 
-    $GLOBALS['file_54c6ce788a574'] = array();
-    $GLOBALS['line_54c6ce788a574'] = array();
-
     class base_template_0dbaaa8e22c297efe0e3d4e8af754e27f1d53fd5
     {
         protected $parent;
@@ -83,223 +80,171 @@ namespace {
 
         }
 
+        public function enhanceException(Exception $e, $section = NULL)
+        {
+            if (!empty($e->enhanced)) {
+                return;
+            }
+
+            $message = $e->getMessage() . "( IN " . 'Services.tpl.php';
+            if ($section) {
+                $message .= " | section: {$section}";
+            }
+            $message .= ")";
+
+            $object   = new ReflectionObject($e);
+            $property = $object->getProperty('message');
+            $property->setAccessible(true);
+            $property->setValue($e, $message);
+
+            $e->enhanced = true;
+        }
+
         public function render(Array $vars = array(), $return = false)
         {
             try {
                 return $this->_render($vars, $return);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 if ($return) ob_get_clean();
-                throw new ServiceProvider\Template\ExceptionWrapper($e, __FILE__);
+                $this->enhanceException($e);
+                throw $e;
             }
         }
 
         public function _render(Array $vars = array(), $return = false)
         {
-            global $file_54c6ce788a574, $line_54c6ce788a574;
             $this->context = $vars;
 
             extract($vars);
             if ($return) {
                 ob_start();
             }
-            $_54c6ce788a574 = array_push($file_54c6ce788a574, 'Services.tpl.php') - 1;
-            $line_54c6ce788a574[$_54c6ce788a574] = 1;
 
             echo "<?php\n\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 3;
             $ns = 'Generate\x' . uniqid(True);
             $this->context['ns'] = $ns;
-            $line_54c6ce788a574[$_54c6ce788a574] = 4;
             echo "\nnamespace ";
-            $line_54c6ce788a574[$_54c6ce788a574] = 5;
             echo $ns . "\n{\n\nclass EventManager\n{\n    public function trigger(\$name, Array \$args = array())\n    {\n        \$event = new \\ServiceProvider\\Event(\$name, \$args);\n\n        switch (strtolower(\$name)) {\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 15;
             foreach($events as $name => $handlers) {
 
                 $this->context['name'] = $name;
                 $this->context['handlers'] = $handlers;
-                $line_54c6ce788a574[$_54c6ce788a574] = 16;
                 echo "        case ";
                 var_export($name);
                 echo ":\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 17;
                 foreach($handlers as $i => $handler) {
 
                     $this->context['i'] = $i;
                     $this->context['handler'] = $handler;
-                    $line_54c6ce788a574[$_54c6ce788a574] = 18;
                     if ($handler->isFunction()) {
-                        $line_54c6ce788a574[$_54c6ce788a574] = 19;
                         echo "                    if (!is_callable(";
                         var_export($handler->getObject()->getName());
                         echo ")) {\n                        require ";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 20;
                         var_export($handler->getFile());
                         echo ";\n                    }\n                    \\";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 22;
                         echo $handler->getObject()->GetName() . "(\$event);\n";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 23;
                     }
                     else {
-                        $line_54c6ce788a574[$_54c6ce788a574] = 24;
                         echo "                    if (!class_exists(";
                         var_export($handler->getObject()->getClass()->getName());
                         echo ", false)) {\n                        require ";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 25;
                         var_export($handler->getFile());
                         echo ";\n                    }\n                    \$object = new \\";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 27;
                         echo $handler->getObject()->getClass()->GetName() . ";\n                    \$object->";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 28;
                         echo $handler->getObject()->getName() . "(\$event);\n";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 29;
                     }
-                    $line_54c6ce788a574[$_54c6ce788a574] = 30;
                     echo "                if (\$event->isPropagationStopped()) {\n                    \$event->setCalls(";
-                    $line_54c6ce788a574[$_54c6ce788a574] = 31;
                     echo $i+1 . ");\n                    return \$event;\n                }\n";
-                    $line_54c6ce788a574[$_54c6ce788a574] = 34;
                 }
-                $line_54c6ce788a574[$_54c6ce788a574] = 35;
                 echo "            \$event->setCalls(" . ($i+1) . ");\n            break;\n\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 38;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 39;
             echo "        }\n\n        return \$event;\n    }\n}\n\nclass Services\n{\n\n    function dump_configuration()\n    {\n        return array(\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 51;
             foreach($default as $key => $value) {
 
                 $this->context['key'] = $key;
                 $this->context['value'] = $value;
-                $line_54c6ce788a574[$_54c6ce788a574] = 52;
                 if (!($value instanceof ServiceProvider\Compiler\ServiceCall)) {
-                    $line_54c6ce788a574[$_54c6ce788a574] = 53;
                     echo "                ";
                     var_export($key);
                     echo " =>  " . ($self->getRawConfiguration($value)) . ",\n";
-                    $line_54c6ce788a574[$_54c6ce788a574] = 54;
                 }
-                $line_54c6ce788a574[$_54c6ce788a574] = 55;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 56;
             foreach($switch as $service) {
 
                 $this->context['service'] = $service;
-                $line_54c6ce788a574[$_54c6ce788a574] = 57;
                 if (!$service['has_value']) {
                     continue;
                 }
-                $line_54c6ce788a574[$_54c6ce788a574] = 60;
                 $rname = null;
                 $this->context['rname'] = $rname;
-                $line_54c6ce788a574[$_54c6ce788a574] = 61;
                 foreach($service['names'] as $name) {
 
                     $this->context['name'] = $name;
-                    $line_54c6ce788a574[$_54c6ce788a574] = 62;
                     if (empty($rname)) {
-                        $line_54c6ce788a574[$_54c6ce788a574] = 63;
                         echo "                        ";
                         var_export($name);
                         echo " => " . ($self->getRawConfiguration($service['params'])) . ",\n";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 64;
                         $rname = $name;
                         $this->context['rname'] = $rname;
-                        $line_54c6ce788a574[$_54c6ce788a574] = 65;
                     }
                     else {
-                        $line_54c6ce788a574[$_54c6ce788a574] = 66;
                         echo "                        ";
                         var_export($name);
                         echo " => ";
                         var_export('%' . $rname . '%');
                         echo ",\n";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 67;
                     }
-                    $line_54c6ce788a574[$_54c6ce788a574] = 68;
                 }
-                $line_54c6ce788a574[$_54c6ce788a574] = 69;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 70;
             echo "        );\n    }\n\n    function get_service(\$service, \$context = NULL)\n    {\n        static \$services = array();\n\n        switch (\$service) {\n        case 'event_manager':\n            if (!empty(\$services['event_manager'])) {\n                return \$services['event_manager'];\n            }\n            \$return = new EventManager;\n            \$services['event_manager'] = \$return;\n            break;\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 85;
             foreach($switch as $service) {
 
                 $this->context['service'] = $service;
-                $line_54c6ce788a574[$_54c6ce788a574] = 86;
                 ServiceProvider\Template\Templates::exec('service', compact('service'), $this->context);
-                $line_54c6ce788a574[$_54c6ce788a574] = 87;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 88;
             foreach($default as $key => $value) {
 
                 $this->context['key'] = $key;
                 $this->context['value'] = $value;
-                $line_54c6ce788a574[$_54c6ce788a574] = 89;
                 if (!$value instanceof ServiceProvider\Compiler\ServiceCall) {
-                    $line_54c6ce788a574[$_54c6ce788a574] = 90;
                     echo "        case ";
                     var_export($key);
                     echo ":\n            \$return = ";
-                    $line_54c6ce788a574[$_54c6ce788a574] = 91;
                     var_export($value);
                     echo "; \n            break;\n";
-                    $line_54c6ce788a574[$_54c6ce788a574] = 93;
                 }
-                $line_54c6ce788a574[$_54c6ce788a574] = 94;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 95;
             echo "        default:\n            throw new \\ServiceProvider\\NotFoundException(\"cannot find service {\$service}\");\n        }\n\n        return \$return;\n    }\n}\n\n} # End\n\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 105;
             if (!empty($alias)) {
-                $line_54c6ce788a574[$_54c6ce788a574] = 106;
                 echo "namespace\n{\nif (!class_exists(";
-                $line_54c6ce788a574[$_54c6ce788a574] = 108;
                 var_export($alias);
                 echo ")) {\n\n\n    class ";
-                $line_54c6ce788a574[$_54c6ce788a574] = 111;
                 echo $alias . "\n    {\n        protected static \$event;\n        protected static \$services;\n\n        public static function __setClass(\$event, \$services)\n        {\n            self::\$event = \$event;\n            self::\$services = \$services;\n        }\n\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 122;
                 foreach($default as $key => $value) {
 
                     $this->context['key'] = $key;
                     $this->context['value'] = $value;
-                    $line_54c6ce788a574[$_54c6ce788a574] = 123;
                     if (!preg_match("/^[a-z][a-z0-9_]*$/i", $key)) {
                         continue;
                     }
-                    $line_54c6ce788a574[$_54c6ce788a574] = 126;
                     if (is_scalar($value)) {
-                        $line_54c6ce788a574[$_54c6ce788a574] = 127;
                         echo "        static \$" . ($key) . " = ";
                         var_export($value);
                         echo ";\n";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 128;
                     }
                     else if (is_array($value)) {
-                        $line_54c6ce788a574[$_54c6ce788a574] = 129;
                         echo "        static \$" . ($key) . " = ";
                         var_export(ServiceProvider\Services::safeArray($value));
                         echo ";\n";
-                        $line_54c6ce788a574[$_54c6ce788a574] = 130;
                     }
 
-                    $line_54c6ce788a574[$_54c6ce788a574] = 131;
                 }
-                $line_54c6ce788a574[$_54c6ce788a574] = 132;
-                echo "\n        public static function dumpConfig()\n        {\n            return self::\$services->dump_configuration();\n        }\n\n        public static function get(\$service, \$context = null)\n        {\n            return self::\$services->get_service(\$service, \$context);\n        }\n\n        public static function event_manager()\n        {\n            return self::\$event;\n        }\n\n        public static function __callStatic(\$name, Array \$args)\n        {\n            var_Dump(\$name, \$args);exit;\n        }\n    }\n}\n\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 155;
+                echo "\n        public static function dumpConfig()\n        {\n            return self::\$services->dump_configuration();\n        }\n\n        public static function get(\$service, \$context = null)\n        {\n            return self::\$services->get_service(\$service, \$context);\n        }\n\n        public static function event_manager()\n        {\n            return self::\$event;\n        }\n\n        public static function __callStatic(\$name, Array \$args)\n        {\n            return self::\$services->get_service(\$name, empty(\$args[0]) ? NULL : \$args[0]);\n        }\n    }\n}\n\n";
                 echo $alias . "::__setClass(new " . ($ns) . "\\EventManager, new " . ($ns) . "\\Services);\n}\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 157;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 158;
             echo "\nnamespace\n{\n    return array(\n        'event' => new ";
-            $line_54c6ce788a574[$_54c6ce788a574] = 162;
             echo $ns . "\\EventManager,\n        'services' => new ";
-            $line_54c6ce788a574[$_54c6ce788a574] = 163;
             echo $ns . "\\Services,\n    );\n}\n";
-
-            array_pop($file_54c6ce788a574);
 
             if ($return) {
                 return ob_get_clean();
@@ -332,97 +277,88 @@ namespace {
 
         }
 
+        public function enhanceException(Exception $e, $section = NULL)
+        {
+            if (!empty($e->enhanced)) {
+                return;
+            }
+
+            $message = $e->getMessage() . "( IN " . 'Service.tpl.php';
+            if ($section) {
+                $message .= " | section: {$section}";
+            }
+            $message .= ")";
+
+            $object   = new ReflectionObject($e);
+            $property = $object->getProperty('message');
+            $property->setAccessible(true);
+            $property->setValue($e, $message);
+
+            $e->enhanced = true;
+        }
+
         public function render(Array $vars = array(), $return = false)
         {
             try {
                 return $this->_render($vars, $return);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 if ($return) ob_get_clean();
-                throw new ServiceProvider\Template\ExceptionWrapper($e, __FILE__);
+                $this->enhanceException($e);
+                throw $e;
             }
         }
 
         public function _render(Array $vars = array(), $return = false)
         {
-            global $file_54c6ce788a574, $line_54c6ce788a574;
             $this->context = $vars;
 
             extract($vars);
             if ($return) {
                 ob_start();
             }
-            $_54c6ce788a574 = array_push($file_54c6ce788a574, 'Service.tpl.php') - 1;
-            $line_54c6ce788a574[$_54c6ce788a574] = 1;
 
             foreach($service['names'] as $name) {
 
                 $this->context['name'] = $name;
-                $line_54c6ce788a574[$_54c6ce788a574] = 2;
                 echo "case ";
                 var_export($name);
                 echo ":\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 3;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 4;
             echo "\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 5;
             if (!empty($service['shared'])) {
-                $line_54c6ce788a574[$_54c6ce788a574] = 6;
                 echo "    if (!empty(\$services[";
                 var_export($name);
                 echo "])) {\n        return \$services[";
-                $line_54c6ce788a574[$_54c6ce788a574] = 7;
                 var_export($name);
                 echo "];\n    }\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 9;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 10;
             echo "\n    \$config = ";
-            $line_54c6ce788a574[$_54c6ce788a574] = 11;
             echo $self->getConfiguration($service['params']) . ";\n\n    // ";
-            $line_54c6ce788a574[$_54c6ce788a574] = 13;
             echo get_class($service['object']) . "\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 14;
             if ($service['object']->isFunction()) {
-                $line_54c6ce788a574[$_54c6ce788a574] = 15;
                 echo "    if (!is_callable(";
                 var_export($service['object']->getName());
                 echo ")) {\n        require __DIR__ . ";
-                $line_54c6ce788a574[$_54c6ce788a574] = 16;
                 var_export($service['file']);
                 echo ";\n    }\n    \$return = \\";
-                $line_54c6ce788a574[$_54c6ce788a574] = 18;
                 echo $service['object']->getName() . "(\$config, \$context, array(\$this, __FUNCTION__));\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 19;
             }
             else {
-                $line_54c6ce788a574[$_54c6ce788a574] = 20;
                 echo "    if (!class_exists(";
                 var_export($service['object']->getClass()->getName());
                 echo ", false)) {\n        require __DIR__ . ";
-                $line_54c6ce788a574[$_54c6ce788a574] = 21;
                 var_export($service['file']);
                 echo ";\n    }\n    \$object = new \\";
-                $line_54c6ce788a574[$_54c6ce788a574] = 23;
                 echo $service['object']->getClass()->getName() . ";\n    \$return = \$object->";
-                $line_54c6ce788a574[$_54c6ce788a574] = 24;
                 echo $service['object']->getName() . "(\$config, \$context, array(\$this, __FUNCTION__));\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 25;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 26;
             echo "\n";
-            $line_54c6ce788a574[$_54c6ce788a574] = 27;
             if (!empty($service['shared'])) {
-                $line_54c6ce788a574[$_54c6ce788a574] = 28;
                 echo "    \$services[";
                 var_export($name);
                 echo "] = \$return;\n";
-                $line_54c6ce788a574[$_54c6ce788a574] = 29;
             }
-            $line_54c6ce788a574[$_54c6ce788a574] = 30;
             echo "    break;\n";
-
-            array_pop($file_54c6ce788a574);
 
             if ($return) {
                 return ob_get_clean();
@@ -434,56 +370,6 @@ namespace {
 }
 
 namespace ServiceProvider\Template {
-
-    use Exception;
-
-    class ExceptionWrapper extends Exception
-    {
-        public $e;
-        protected $file;
-
-        public function getSimpleViewTrace()
-        {
-            global $file_54c6ce788a574, $line_54c6ce788a574;
-
-            $traces = $this->e->getTrace();
-            $i = 0;
-            foreach ($traces as &$trace) {
-                if (!empty($trace['file'])
-                    && $trace['file'] == $this->file && !empty($file_54c6ce788a574[$i])) {
-                    $trace['file'] = $file_54c6ce788a574[$i];
-                    $trace['line'] = $line_54c6ce788a574[$i];
-                    ++$i;
-                }
-                if (empty($trace['file'])) {
-                    $trace['file'] = '[internal function]';
-                }
-                if (empty($trace['line'])) {
-                    $trace['line'] = '';
-                }
-            }
-
-            return $traces;
-        }
-
-        public function __toString()
-        {
-            $traces = $this->getSimpleViewTrace();
-            $str    = "exception '" . get_class($this->e) . "' in {$traces[0]['file']}{$traces[0]['line']}:\nStack trace:\n";
-            foreach ($traces as $i => $trace) {
-                $str .= "#{$i} {$trace['file']}:{$trace['line']}\n";
-            }
-            ++$i;
-            $str .= "#{$i} {main}";
-            return $str;
-        }
-
-        public function __construct(Exception $e, $file)
-        {
-            $this->e    = $e;
-            $this->file = $file;
-        }
-    }
 
 
     class Templates

@@ -147,7 +147,7 @@ if (!class_exists({{@$alias}})) {
 
         public static function __callStatic($name, Array $args)
         {
-            var_Dump($name, $args);exit;
+            return self::$services->get_service($name, empty($args[0]) ? NULL : $args[0]);
         }
     }
 }
