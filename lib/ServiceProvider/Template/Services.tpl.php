@@ -105,7 +105,7 @@ class Services
 @if (!empty($alias))
 namespace
 {
-if (!class_exists({{@$alias}})) {
+if (!class_exists({{@$alias}}, false)) {
 
 
     class {{$alias}}

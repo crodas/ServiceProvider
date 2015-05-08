@@ -218,7 +218,7 @@ namespace {
             if (!empty($alias)) {
                 echo "namespace\n{\nif (!class_exists(";
                 var_export($alias);
-                echo ")) {\n\n\n    class ";
+                echo ", false)) {\n\n\n    class ";
                 echo $alias . "\n    {\n        protected static \$event;\n        protected static \$services;\n\n        public static function __setClass(\$event, \$services)\n        {\n            self::\$event = \$event;\n            self::\$services = \$services;\n        }\n\n";
                 foreach($default as $key => $value) {
 
