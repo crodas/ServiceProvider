@@ -97,7 +97,9 @@ class SimpleTest extends \phpunit_framework_testcase
         $service1 = getService()->get('foobar', $this);
         $this->assertTrue($service1 instanceof \Stdclass);
 
-        $service = getService()->get('barfoo', $this);
+        $service  = getService()->get('barfoo', $this);
+        $service2 = getService()->get('xxx', $this);
+        $this->assertEquals($service, $service2);
         $this->assertTrue(is_array($service));
         $this->assertTrue(is_callable($service['callback']));
         $this->assertEquals($service['barfoo'], $service1);

@@ -57,6 +57,120 @@ namespace {
     }
 
     /** 
+     *  Template class generated from Service.tpl.php
+     */
+    class class_0e7c6437a035d77bb64635a76bc7506fb01ef5c7 extends base_template_0dbaaa8e22c297efe0e3d4e8af754e27f1d53fd5
+    {
+
+        public function hasSection($name)
+        {
+
+            return false;
+        }
+
+
+        public function renderSection($name, Array $args = array(), $fail_on_missing = true)
+        {
+            if (!$this->hasSection($name)) {
+                if ($fail_on_missing) {
+                    throw new \RuntimeException("Cannot find section {$name}");
+                }
+                return "";
+            }
+
+        }
+
+        public function enhanceException(Exception $e, $section = NULL)
+        {
+            if (!empty($e->enhanced)) {
+                return;
+            }
+
+            $message = $e->getMessage() . "( IN " . 'Service.tpl.php';
+            if ($section) {
+                $message .= " | section: {$section}";
+            }
+            $message .= ")";
+
+            $object   = new ReflectionObject($e);
+            $property = $object->getProperty('message');
+            $property->setAccessible(true);
+            $property->setValue($e, $message);
+
+            $e->enhanced = true;
+        }
+
+        public function render(Array $vars = array(), $return = false)
+        {
+            try {
+                return $this->_render($vars, $return);
+            } catch (Exception $e) {
+                if ($return) ob_get_clean();
+                $this->enhanceException($e);
+                throw $e;
+            }
+        }
+
+        public function _render(Array $vars = array(), $return = false)
+        {
+            $this->context = $vars;
+
+            extract($vars);
+            if ($return) {
+                ob_start();
+            }
+
+            foreach($service['names'] as $name) {
+
+                $this->context['name'] = $name;
+                echo "case ";
+                var_export($name);
+                echo ":\n";
+            }
+            echo "\n";
+            if (!empty($service['shared'])) {
+                echo "    if (!empty(\$services[";
+                var_export($name);
+                echo "])) {\n        return \$services[";
+                var_export($name);
+                echo "];\n    }\n";
+            }
+            echo "\n    \$config = ";
+            echo $self->getConfiguration($service['params']) . ";\n\n    // ";
+            echo get_class($service['object']) . "\n";
+            if ($service['object']->isFunction()) {
+                echo "    if (!is_callable(";
+                var_export($service['object']->getName());
+                echo ")) {\n        require __DIR__ . ";
+                var_export($service['file']);
+                echo ";\n    }\n    \$return = \\";
+                echo $service['object']->getName() . "(\$config, \$context, array(\$this, __FUNCTION__));\n";
+            }
+            else {
+                echo "    if (!class_exists(";
+                var_export($service['object']->getClass()->getName());
+                echo ", false)) {\n        require __DIR__ . ";
+                var_export($service['file']);
+                echo ";\n    }\n    \$object = new \\";
+                echo $service['object']->getClass()->getName() . ";\n    \$return = \$object->";
+                echo $service['object']->getName() . "(\$config, \$context, array(\$this, __FUNCTION__));\n";
+            }
+            echo "\n";
+            if (!empty($service['shared'])) {
+                echo "    \$services[";
+                var_export($name);
+                echo "] = \$return;\n";
+            }
+            echo "    break;\n";
+
+            if ($return) {
+                return ob_get_clean();
+            }
+
+        }
+    }
+
+    /** 
      *  Template class generated from Services.tpl.php
      */
     class class_c96c365346bcf33d93d2a2d073d94f6f8e159b26 extends base_template_0dbaaa8e22c297efe0e3d4e8af754e27f1d53fd5
@@ -253,120 +367,6 @@ namespace {
         }
     }
 
-    /** 
-     *  Template class generated from Service.tpl.php
-     */
-    class class_0e7c6437a035d77bb64635a76bc7506fb01ef5c7 extends base_template_0dbaaa8e22c297efe0e3d4e8af754e27f1d53fd5
-    {
-
-        public function hasSection($name)
-        {
-
-            return false;
-        }
-
-
-        public function renderSection($name, Array $args = array(), $fail_on_missing = true)
-        {
-            if (!$this->hasSection($name)) {
-                if ($fail_on_missing) {
-                    throw new \RuntimeException("Cannot find section {$name}");
-                }
-                return "";
-            }
-
-        }
-
-        public function enhanceException(Exception $e, $section = NULL)
-        {
-            if (!empty($e->enhanced)) {
-                return;
-            }
-
-            $message = $e->getMessage() . "( IN " . 'Service.tpl.php';
-            if ($section) {
-                $message .= " | section: {$section}";
-            }
-            $message .= ")";
-
-            $object   = new ReflectionObject($e);
-            $property = $object->getProperty('message');
-            $property->setAccessible(true);
-            $property->setValue($e, $message);
-
-            $e->enhanced = true;
-        }
-
-        public function render(Array $vars = array(), $return = false)
-        {
-            try {
-                return $this->_render($vars, $return);
-            } catch (Exception $e) {
-                if ($return) ob_get_clean();
-                $this->enhanceException($e);
-                throw $e;
-            }
-        }
-
-        public function _render(Array $vars = array(), $return = false)
-        {
-            $this->context = $vars;
-
-            extract($vars);
-            if ($return) {
-                ob_start();
-            }
-
-            foreach($service['names'] as $name) {
-
-                $this->context['name'] = $name;
-                echo "case ";
-                var_export($name);
-                echo ":\n";
-            }
-            echo "\n";
-            if (!empty($service['shared'])) {
-                echo "    if (!empty(\$services[";
-                var_export($name);
-                echo "])) {\n        return \$services[";
-                var_export($name);
-                echo "];\n    }\n";
-            }
-            echo "\n    \$config = ";
-            echo $self->getConfiguration($service['params']) . ";\n\n    // ";
-            echo get_class($service['object']) . "\n";
-            if ($service['object']->isFunction()) {
-                echo "    if (!is_callable(";
-                var_export($service['object']->getName());
-                echo ")) {\n        require __DIR__ . ";
-                var_export($service['file']);
-                echo ";\n    }\n    \$return = \\";
-                echo $service['object']->getName() . "(\$config, \$context, array(\$this, __FUNCTION__));\n";
-            }
-            else {
-                echo "    if (!class_exists(";
-                var_export($service['object']->getClass()->getName());
-                echo ", false)) {\n        require __DIR__ . ";
-                var_export($service['file']);
-                echo ";\n    }\n    \$object = new \\";
-                echo $service['object']->getClass()->getName() . ";\n    \$return = \$object->";
-                echo $service['object']->getName() . "(\$config, \$context, array(\$this, __FUNCTION__));\n";
-            }
-            echo "\n";
-            if (!empty($service['shared'])) {
-                echo "    \$services[";
-                var_export($name);
-                echo "] = \$return;\n";
-            }
-            echo "    break;\n";
-
-            if ($return) {
-                return ob_get_clean();
-            }
-
-        }
-    }
-
 }
 
 namespace ServiceProvider\Template {
@@ -377,8 +377,8 @@ namespace ServiceProvider\Template {
         public static function getAll()
         {
             return array (
-                0 => 'services',
-                1 => 'service',
+                0 => 'service',
+                1 => 'services',
             );
         }
 
@@ -403,10 +403,10 @@ namespace ServiceProvider\Template {
         public static function get($name, Array $context = array())
         {
             static $classes = array (
-                'services.tpl.php' => 'class_c96c365346bcf33d93d2a2d073d94f6f8e159b26',
-                'services' => 'class_c96c365346bcf33d93d2a2d073d94f6f8e159b26',
                 'service.tpl.php' => 'class_0e7c6437a035d77bb64635a76bc7506fb01ef5c7',
                 'service' => 'class_0e7c6437a035d77bb64635a76bc7506fb01ef5c7',
+                'services.tpl.php' => 'class_c96c365346bcf33d93d2a2d073d94f6f8e159b26',
+                'services' => 'class_c96c365346bcf33d93d2a2d073d94f6f8e159b26',
             );
             $name = strtolower($name);
             if (empty($classes[$name])) {

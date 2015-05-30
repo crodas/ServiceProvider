@@ -1,0 +1,7 @@
+barfoo:
+    barfoo: %foobar%
+    service: 1
+    foobar: %foobar%
+    arg1: %foobar.arg1%
+
+xxx: %barfoo%
