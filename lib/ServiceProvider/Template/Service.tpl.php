@@ -4,6 +4,7 @@ case {{@$name}}:
 
     @if (!empty($service['shared']))
     if (!empty($services[{{@$name}}])) {
+        // shared service
         return $services[{{@$name}}];
     }
     @end

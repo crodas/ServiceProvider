@@ -131,7 +131,7 @@ namespace {
             if (!empty($service['shared'])) {
                 echo "    if (!empty(\$services[";
                 var_export($name);
-                echo "])) {\n        return \$services[";
+                echo "])) {\n        // shared service\n        return \$services[";
                 var_export($name);
                 echo "];\n    }\n";
             }

@@ -163,33 +163,12 @@ class Services extends Action
             }
 
             foreach ($annotations->get('PrepareService', 'Callable') as $zann) {
-                $args = $zann->GetArgs();
+                $zargs = $zann->GetArgs();
                 if (current($args) !== $name) {
                     continue;
                 }
 
-                $isFunc = $zann->getObject() instanceof \Notoj\Object\zFunction;
-                $zname  = $zann->getObject()->getName();
-                $isMethod = !$isFunc;
-                    
-                if (($isFunc && !is_callable($zname)) ||
-                    ($isMethod && !class_exists($zann->getObject()->getClass()->getName(), false))
-                ) {
-                    require $zann->getFile();
-                }
-
-                if ($isFunc) {
-                    $zparams = $zname($params);
-                } else {
-                    $class = $zann->getObject()->GetClass()->getName();
-                    if ($zann->getObject()->isStatic()) {
-                        $zparams = $class::$zname($params);
-                    } else {
-                        $obj = new $class;
-                        $zparams = $obj->$zname($params);
-                    }
-                }
-
+                $zparams = $zann->getObject()->exec($params);
                 if (is_array($zparams)) {
                     $params = $zparams;
                 }
