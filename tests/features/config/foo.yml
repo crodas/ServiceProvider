@@ -1,18 +1,15 @@
+include:
+    - foo-child.yml
+
 arg1: 'xxx'
 devel: true
 
 foobar:
     arg1: 'demo'
 
-barfoo:
-    barfoo: %foobar%
-    service: 1
-    foobar: %foobar%
-    arg1: %foobar.arg1%
-
 foo:
     bar: xxx
 
 service-provider:
     path: ../extra/
-    
+
