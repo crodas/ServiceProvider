@@ -158,6 +158,12 @@ if (!class_exists({{@$alias}}, false)) {
 
 namespace
 {
+    @if (!$prod)
+    if (!defined('DEVELOPMENT_MODE')) {
+        define('DEVELOPMENT_MODE', true);
+    }
+    @end
+
     return array(
         'event' => new {{$ns}}\EventManager,
         'services' => new {{$ns}}\Services,

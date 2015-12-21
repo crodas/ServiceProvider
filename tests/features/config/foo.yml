@@ -2,7 +2,7 @@ include:
     - foo-child.yml
 
 arg1: 'xxx'
-devel: true
+devel: false
 
 foobar:
     arg1: 'demo'

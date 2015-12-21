@@ -356,7 +356,11 @@ namespace {
                 echo "\n        public static function dumpConfig()\n        {\n            return self::\$services->dump_configuration();\n        }\n\n        public static function get(\$service, \$context = null)\n        {\n            return self::\$services->get_service(\$service, \$context);\n        }\n\n        public static function event_manager()\n        {\n            return self::\$event;\n        }\n\n        public static function __callStatic(\$name, Array \$args)\n        {\n            return self::\$services->get_service(\$name, empty(\$args[0]) ? NULL : \$args[0]);\n        }\n    }\n}\n\n";
                 echo $alias . "::__setClass(new " . ($ns) . "\\EventManager, new " . ($ns) . "\\Services);\n}\n";
             }
-            echo "\nnamespace\n{\n    return array(\n        'event' => new ";
+            echo "\nnamespace\n{\n";
+            if (!$prod) {
+                echo "    if (!defined('DEVELOPMENT_MODE')) {\n        define('DEVELOPMENT_MODE', true);\n    }\n";
+            }
+            echo "\n    return array(\n        'event' => new ";
             echo $ns . "\\EventManager,\n        'services' => new ";
             echo $ns . "\\Services,\n    );\n}\n";
 
