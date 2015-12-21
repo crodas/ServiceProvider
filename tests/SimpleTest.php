@@ -24,6 +24,9 @@ class SimpleTest extends \phpunit_framework_testcase
             $this->assertTrue(!empty($foo['zargs_1']));
             $this->assertTrue(!empty($foo['zargs_2']));
             $this->assertTrue(!empty($foo['zargs_3']));
+            $this->assertFalse(defined('DEVELOPMENT_MODE'));
+        } else {
+            $this->assertTrue(DEVELOPMENT_MODE);
         }
 
         $this->assertTrue(is_array($services->dump()));

@@ -170,7 +170,7 @@ class Provider
         $self  = $this;
         $alias = $this->alias;
         $code  = Template\Templates::get('services')
-            ->render(compact('switch', 'self', 'alias', 'prod', 'default', 'events'), true);
+            ->render(compact('switch', 'self', 'alias', 'prod', 'default', 'events', 'prod'), true);
 
         File::write($this->tmp, FixCode::fix($code));
 
